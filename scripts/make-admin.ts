@@ -21,11 +21,20 @@ async function makeAdmin(phoneArg: string) {
     process.exit(1);
   }
 
-  const user = users.users.find((u) => u.phone === phone);
+  let user = users.users.find((u) => u.phone === phone);
   if (!user) {
-    console.error(`User with phone ${phone} not found in auth.users.`);
-    console.log('Ensure the user has logged in at least once so their account exists.');
-    process.exit(1);
+    console.log(`User ${phone} not found in auth.users. Creating pre-confirmed user...`);
+    const { data: created, error: createErr } = await supabase.auth.admin.createUser({
+      phone,
+      phone_confirm: true,
+      user_metadata: { name: 'Siva Admin' },
+    });
+    if (createErr || !created.user) {
+      console.error('Failed to create user:', createErr);
+      process.exit(1);
+    }
+    user = created.user;
+    console.log(`✓ Created pre-confirmed user: ${user.id}`);
   }
 
   const { error: insErr } = await supabase.from('admin_users').upsert({
