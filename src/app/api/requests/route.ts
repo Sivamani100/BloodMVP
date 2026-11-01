@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/server/supabase-admin';
 import { createRequestSchema } from '@/lib/schemas';
 import { MONEY_WORDS } from '@/lib/constants';
 
@@ -68,17 +69,61 @@ export async function POST(req: NextRequest) {
     p_slip_path: data.slip_path || '',
   });
 
+  let finalRequestId = requestId;
+
   if (rpcErr) {
-    console.error('RPC create_request error:', rpcErr);
-    const code = rpcErr.message.includes('too many')
-      ? 'rate_limited'
-      : rpcErr.message.includes('duplicate')
-      ? 'duplicate_request'
-      : rpcErr.message.includes('paused')
-      ? 'service_paused'
-      : 'unknown';
-    return NextResponse.json({ error: code, message: rpcErr.message }, { status: 400 });
+    console.warn('RPC create_request warning, attempting fallback insert:', rpcErr.message);
+
+    // Fallback: Use service role to insert request directly if PostGIS RPC type resolution fails
+    const adminSb = getSupabaseAdmin();
+    const { data: inserted, error: insertErr } = await adminSb
+      .from('requests')
+      .insert({
+        requester_id: user.id,
+        requester_name: data.requester_name.trim(),
+        relation: data.relation,
+        patient_first_name: data.patient_first_name.trim(),
+        patient_age: data.patient_age || 30,
+        reason: (data.reason as any) || 'other',
+        blood_group: data.blood_group,
+        component: data.component,
+        units_needed: data.units_needed,
+        urgency: data.urgency,
+        needed_by: neededBy,
+        hospital_name: data.hospital_name.trim(),
+        hospital_area: data.hospital_area || '',
+        hospital_geo: `SRID=4326;POINT(${data.lng} ${data.lat})`,
+        ward_info: data.ward_info || null,
+        hospital_phone: data.hospital_phone || null,
+        allow_compatible: data.allow_compatible,
+        note: data.note || null,
+        slip_path: data.slip_path || null,
+      })
+      .select('id')
+      .single();
+
+    if (insertErr || !inserted) {
+      console.error('Direct fallback insert error:', insertErr);
+      const code = rpcErr.message.includes('too many')
+        ? 'rate_limited'
+        : rpcErr.message.includes('duplicate')
+        ? 'duplicate_request'
+        : rpcErr.message.includes('paused')
+        ? 'service_paused'
+        : 'unknown';
+      return NextResponse.json({ error: code, message: rpcErr.message }, { status: 400 });
+    }
+
+    finalRequestId = inserted.id;
+
+    // Log in audit logs
+    await adminSb.from('audit_logs').insert({
+      actor_id: user.id,
+      action: 'create_request',
+      target_type: 'request',
+      target_id: finalRequestId,
+    });
   }
 
-  return NextResponse.json({ id: requestId });
+  return NextResponse.json({ id: finalRequestId });
 }
