@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+dotenv.config();
+
 import { getEnv } from '../src/server/env';
 
 const TEMPLATES = [

@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+dotenv.config();
+
 import { getSupabaseAdmin } from '../src/server/supabase-admin';
 import { getEnv } from '../src/server/env';
 import { encrypt } from '../src/server/security/crypto';

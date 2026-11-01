@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+dotenv.config();
+
 import { getSupabaseAdmin } from '../src/server/supabase-admin';
 import { normalizePhone } from '../src/server/security/allowlist';
 
