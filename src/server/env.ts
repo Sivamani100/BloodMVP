@@ -20,7 +20,7 @@ const envSchema = z.object({
   WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().optional(),
   WHATSAPP_ACCESS_TOKEN: z.string().optional(),
   WHATSAPP_APP_SECRET: z.string().optional(),
-  WHATSAPP_VERIFY_TOKEN: z.string().default('blood_verify_token_default'),
+  WHATSAPP_VERIFY_TOKEN: z.string().default('raktkhoj_verify_secret_2026'),
 
   VOICE_PROVIDER: z.enum(['twilio']).default('twilio'),
   TWILIO_ACCOUNT_SID: z.string().optional(),
