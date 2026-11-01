@@ -7,6 +7,7 @@ export interface WhatsAppSendResult {
   messageId?: string;
   errorCode?: string;
   retryable: boolean;
+  skipped?: boolean;
 }
 
 async function postToWhatsApp(payload: Record<string, unknown>): Promise<WhatsAppSendResult> {
@@ -76,7 +77,7 @@ export async function sendWhatsAppTemplate(args: {
 }): Promise<WhatsAppSendResult> {
   if (!canContact(args.toE164)) {
     console.log(`[WhatsApp] Skipped send to non-allowlisted number: ${redactPhone(args.toE164)}`);
-    return { ok: true, messageId: `allowlist_skipped_${Date.now()}`, retryable: false };
+    return { ok: false, skipped: true, messageId: `allowlist_skipped_${Date.now()}`, retryable: false };
   }
 
   const to = args.toE164.replace(/\D/g, '');
@@ -118,7 +119,7 @@ export async function sendWhatsAppInteractive(args: {
 }): Promise<WhatsAppSendResult> {
   if (!canContact(args.toE164)) {
     console.log(`[WhatsApp] Skipped interactive to non-allowlisted: ${redactPhone(args.toE164)}`);
-    return { ok: true, messageId: `allowlist_skipped_${Date.now()}`, retryable: false };
+    return { ok: false, skipped: true, messageId: `allowlist_skipped_${Date.now()}`, retryable: false };
   }
 
   const to = args.toE164.replace(/\D/g, '');
@@ -147,7 +148,7 @@ export async function sendWhatsAppText(args: {
 }): Promise<WhatsAppSendResult> {
   if (!canContact(args.toE164)) {
     console.log(`[WhatsApp] Skipped text to non-allowlisted: ${redactPhone(args.toE164)}`);
-    return { ok: true, messageId: `allowlist_skipped_${Date.now()}`, retryable: false };
+    return { ok: false, skipped: true, messageId: `allowlist_skipped_${Date.now()}`, retryable: false };
   }
 
   const to = args.toE164.replace(/\D/g, '');
