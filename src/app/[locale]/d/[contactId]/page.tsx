@@ -2,14 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
+import { WizardHeader } from '@/components/ui/WizardHeader';
 import {
   MapPin,
   Building2,
   Phone,
   ShieldCheck,
   CheckCircle2,
-  Heart,
   Loader2,
   Navigation,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import {
 export default function DonorContactViewPage() {
   const params = useParams();
   const contactId = params.contactId as string;
+  const router = useRouter();
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -36,110 +38,135 @@ export default function DonorContactViewPage() {
     }
 
     loadData();
-  }, [contactId]);
+  }, [contactId, supabase]);
 
   if (loading) {
-    return <div className="p-12 text-center text-sm text-gray-500">Loading emergency details...</div>;
+    return (
+      <div className="w-full min-h-screen bg-white flex flex-col items-center justify-center p-6 space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+        <p className="text-sm font-semibold text-gray-700">Loading emergency details...</p>
+      </div>
+    );
   }
 
   if (!data) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center text-sm text-gray-500">
-        Emergency request not found or access expired.
+      <div className="w-full min-h-screen bg-white flex flex-col justify-center px-4 py-8">
+        <div className="max-w-md w-full mx-auto text-center space-y-3">
+          <h1 className="text-xl font-bold text-gray-900">Request Expired or Closed</h1>
+          <p className="text-xs text-gray-500">
+            Emergency request not found or access has expired.
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="py-3 px-6 bg-red-600 text-white font-bold rounded-2xl text-xs"
+          >
+            Back Home
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      {/* Confirmed Banner */}
-      <div className="bg-emerald-600 text-white p-6 rounded-3xl shadow-lg shadow-emerald-600/20 text-center space-y-2">
-        <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-200" />
-        <h1 className="text-2xl font-black">You are Confirmed to Donate</h1>
-        <p className="text-xs sm:text-sm text-emerald-100 max-w-md mx-auto">
-          Thank you for volunteering! Please proceed to the hospital and present your Donation Code.
-        </p>
-      </div>
+    <div className="w-full min-h-screen bg-white pb-20 text-gray-900">
+      <WizardHeader
+        title="Donation Details"
+        onBack={() => router.push('/donor')}
+        showClose={false}
+      />
 
-      {/* Donation Code Box */}
-      {data.donation_code && (
-        <div className="bg-white p-6 rounded-3xl border-2 border-blood-500 text-center space-y-2 shadow-sm">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-            Your Official Donation Code
-          </span>
-          <div className="font-mono text-4xl sm:text-5xl font-black text-blood-600 tracking-widest">
-            {data.donation_code}
+      <div className="max-w-md mx-auto px-5 pt-4 space-y-5">
+        {/* Confirmed Banner */}
+        <div className="p-6 rounded-3xl bg-[#ECFDF5] border border-emerald-200 text-center space-y-2">
+          <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
+            <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
           </div>
-          <p className="text-xs text-gray-500">
-            Tell this 6-digit code to the family or blood bank desk when you arrive.
+          <h1 className="text-xl font-black text-emerald-950">
+            You are Confirmed to Donate
+          </h1>
+          <p className="text-xs text-emerald-800 leading-relaxed max-w-xs mx-auto">
+            Thank you for stepping up! Please proceed to the hospital and present your official Donation Code.
           </p>
         </div>
-      )}
 
-      {/* Hospital details */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-        <div className="flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-blood-600" />
-          <h2 className="text-lg font-bold text-gray-900">Hospital &amp; Room Details</h2>
-        </div>
-
-        <div className="space-y-2 text-sm text-gray-800">
-          <p className="font-extrabold text-base text-gray-950">
-            {data.hospital_name}
-          </p>
-          {data.hospital_area && (
-            <p className="text-gray-600 text-xs flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-gray-400" />
-              <span>{data.hospital_area}</span>
+        {/* Donation Code Card */}
+        {data.donation_code && (
+          <div className="p-6 rounded-3xl bg-[#FFF1F2] border-2 border-red-400 text-center space-y-2 shadow-xs">
+            <span className="text-[11px] font-bold text-red-600 uppercase tracking-widest">
+              Your Official Donation Code
+            </span>
+            <div className="font-mono text-4xl sm:text-5xl font-black text-red-600 tracking-widest py-1">
+              {data.donation_code}
+            </div>
+            <p className="text-xs text-gray-600">
+              Show this 6-digit code to the patient&apos;s family or blood bank desk when you arrive.
             </p>
-          )}
+          </div>
+        )}
+
+        {/* Hospital Details Card */}
+        <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 space-y-3">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-red-600" />
+            <h2 className="font-bold text-sm text-gray-900">Hospital Location</h2>
+          </div>
+
+          <div>
+            <h3 className="font-extrabold text-base text-gray-950">{data.hospital_name}</h3>
+            {data.hospital_area && (
+              <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                <span>{data.hospital_area}</span>
+              </p>
+            )}
+          </div>
 
           {data.ward_info && (
-            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs font-semibold text-gray-800">
+            <div className="p-3 bg-white rounded-xl border border-gray-200 text-xs font-semibold text-gray-800">
               Ward / Room: {data.ward_info}
             </div>
           )}
+
+          {data.hospital_lat && data.hospital_lng && (
+            <div className="pt-1">
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${data.hospital_lat},${data.hospital_lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-xs"
+              >
+                <Navigation className="w-4 h-4" />
+                <span>Open Directions in Google Maps</span>
+              </a>
+            </div>
+          )}
         </div>
 
-        {data.hospital_lat && data.hospital_lng && (
-          <a
-            href={`https://www.google.com/maps/dir/?api=1&destination=${data.hospital_lat},${data.hospital_lng}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 w-full py-3 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-colors"
-          >
-            <Navigation className="w-4 h-4" />
-            <span>Open Directions in Google Maps</span>
-          </a>
-        )}
-      </div>
-
-      {/* Family Contact */}
-      {data.requester_phone && (
-        <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-3">
-          <h2 className="text-base font-bold text-gray-900">Patient Family Contact</h2>
-          <div className="flex items-center justify-between">
+        {/* Family Contact Card */}
+        {data.requester_phone && (
+          <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-extrabold text-gray-950">{data.requester_name}</p>
-              <p className="text-xs text-gray-500">{data.relation}</p>
+              <p className="font-extrabold text-sm text-gray-950">{data.requester_name}</p>
+              <p className="text-xs text-gray-500 capitalize">{data.relation || 'Patient Family'}</p>
             </div>
+
             <a
               href={`tel:${data.requester_phone}`}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm"
+              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Call Family</span>
             </a>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Safety reminder */}
-      <div className="p-4 bg-emerald-50 text-emerald-900 text-xs rounded-2xl border border-emerald-200 flex items-center gap-2">
-        <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-        <span>Blood never asks for money. The blood bank doctor conducts the final health exam.</span>
+        {/* Safety Reminder */}
+        <div className="p-4 rounded-2xl bg-[#ECFDF5] border border-emerald-200 text-emerald-900 text-xs flex items-center gap-2.5">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>Blood donation is 100% voluntary. The medical officer performs the final pre-donation test.</span>
+        </div>
       </div>
     </div>
   );
 }
-

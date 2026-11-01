@@ -1,15 +1,28 @@
+'use client';
+
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+import { Link, usePathname } from '@/i18n/routing';
 import { ShieldCheck } from 'lucide-react';
 
 export function Footer() {
   const tCommon = useTranslations('common');
   const tHome = useTranslations('home');
+  const pathname = usePathname();
+
+  // Hide global footer on wizard and live tracking screens
+  const isDedicatedStep =
+    pathname.startsWith('/need-blood') ||
+    pathname.startsWith('/r/') ||
+    pathname.startsWith('/become-donor');
+
+  if (isDedicatedStep) {
+    return null;
+  }
 
   return (
     <footer className="bg-gray-50 border-t border-gray-100 py-10 text-center text-sm text-gray-500">
-      <div className="max-w-4xl mx-auto px-4 space-y-4">
+      <div className="max-w-md mx-auto px-4 space-y-4">
         <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-full border border-emerald-200">
           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{tCommon('safety')}</span>
@@ -34,4 +47,3 @@ export function Footer() {
     </footer>
   );
 }
-

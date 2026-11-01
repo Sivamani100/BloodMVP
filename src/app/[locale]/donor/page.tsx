@@ -4,18 +4,17 @@ import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
+import { WizardHeader } from '@/components/ui/WizardHeader';
 import {
   Heart,
-  ShieldCheck,
-  PauseCircle,
-  PlayCircle,
-  Trash2,
-  LogOut,
-  Calendar,
-  CheckCircle2,
   Clock,
-  AlertCircle,
   Award,
+  Calendar,
+  LogOut,
+  Trash2,
+  CheckCircle2,
+  Loader2,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function DonorDashboard() {
@@ -48,7 +47,7 @@ export default function DonorDashboard() {
     }
 
     fetchDonorData();
-  }, [router]);
+  }, [router, supabase]);
 
   async function handlePauseAlerts(days: number | null) {
     setPausing(true);
@@ -95,21 +94,34 @@ export default function DonorDashboard() {
   }
 
   if (loading) {
-    return <div className="p-12 text-center text-sm text-gray-500">Loading donor profile...</div>;
+    return (
+      <div className="w-full min-h-screen bg-white flex flex-col items-center justify-center p-6 space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+        <p className="text-sm font-semibold text-gray-700">Loading donor profile...</p>
+      </div>
+    );
   }
 
   if (!donor) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
-        <Heart className="w-12 h-12 text-gray-300 mx-auto" />
-        <h1 className="text-xl font-bold text-gray-900">No Donor Profile Found</h1>
-        <p className="text-sm text-gray-600">Register as a volunteer blood donor to start saving lives.</p>
-        <button
-          onClick={() => router.push('/become-donor')}
-          className="px-6 py-3 bg-blood-600 text-white font-bold rounded-2xl shadow-md"
-        >
-          Register Now
-        </button>
+      <div className="w-full min-h-screen bg-white flex flex-col justify-center px-4 py-8">
+        <div className="max-w-md w-full mx-auto text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+            <Heart className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl font-black text-gray-950">No Donor Profile Found</h1>
+          <p className="text-sm text-gray-500 max-w-xs mx-auto">
+            Register as a volunteer blood donor to start saving lives in your community.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => router.push('/become-donor')}
+              className="py-4 px-8 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold rounded-2xl shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all"
+            >
+              Register Now
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -117,118 +129,139 @@ export default function DonorDashboard() {
   const isPaused = donor.paused_until && new Date(donor.paused_until) > new Date();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      {/* Header status card */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                donor.state === 'active' && !isPaused
-                  ? 'bg-emerald-500'
+    <div className="w-full min-h-screen bg-white pb-20 text-gray-900">
+      <WizardHeader
+        title="Donor Profile"
+        onBack={() => router.push('/')}
+        showClose={false}
+      />
+
+      <div className="max-w-md mx-auto px-5 pt-4 space-y-5">
+        {/* Status Card */}
+        <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-3 h-3 rounded-full ${
+                  donor.state === 'active' && !isPaused
+                    ? 'bg-emerald-500 ring-4 ring-emerald-100'
+                    : isPaused
+                    ? 'bg-amber-500 ring-4 ring-amber-100'
+                    : 'bg-gray-400'
+                }`}
+              />
+              <span className="font-black text-lg text-gray-950">
+                {donor.state === 'active' && !isPaused
+                  ? 'Active Donor'
                   : isPaused
-                  ? 'bg-amber-500'
-                  : 'bg-gray-400'
-              }`}
-            />
-            <h1 className="text-2xl font-black text-gray-950">
-              {donor.state === 'active' && !isPaused
-                ? tDonor('state_active')
-                : isPaused
-                ? 'Alerts Paused'
-                : tDonor('state_pending')}
-            </h1>
+                  ? 'Alerts Paused'
+                  : 'Pending Verification'}
+              </span>
+            </div>
+
+            <div className="px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-black text-red-600">
+              {donor.blood_group || 'O+'}
+            </div>
           </div>
-          <p className="text-sm text-gray-600">
-            {donor.full_name} · Group:{' '}
-            <span className="font-extrabold text-blood-700">{donor.blood_group || 'Not set'}</span>
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 bg-blood-50 text-blood-700 border border-blood-200 px-3 py-1.5 rounded-xl font-bold text-xs">
-            <Award className="w-4 h-4" />
-            <span>{donor.donations_count || 0} Donations Verified</span>
-          </span>
-        </div>
-      </div>
+          <div className="pt-1">
+            <h2 className="font-extrabold text-xl text-gray-950">{donor.full_name}</h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Verified mobile · Rajahmundry, East Godavari
+            </p>
+          </div>
 
-      {/* Next eligible date */}
-      {donor.next_eligible_date && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
-          <Calendar className="w-5 h-5 text-emerald-700 shrink-0" />
-          <p className="text-sm font-semibold text-emerald-900">
-            {tDonor('next_eligible', { date: donor.next_eligible_date })}
-          </p>
-        </div>
-      )}
-
-      {/* Pause Alerts Card */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-3">
-        <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-gray-600" />
-          <span>Pause Emergency Alerts</span>
-        </h2>
-        <p className="text-xs text-gray-500">
-          Going on travel or temporarily unwell? Pause alerts anytime. You will not receive calls or WhatsApp requests while paused.
-        </p>
-
-        {isPaused ? (
-          <div className="pt-2 flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
-              Paused until {new Date(donor.paused_until).toLocaleDateString()}
+          <div className="pt-2 border-t border-gray-200/60 flex items-center justify-between text-xs">
+            <span className="text-gray-500 font-medium">Donations Verified</span>
+            <span className="font-bold text-gray-950 flex items-center gap-1">
+              <Award className="w-3.5 h-3.5 text-amber-500" />
+              <span>{donor.donations_count || 0} times</span>
             </span>
-            <button
-              type="button"
-              onClick={() => handlePauseAlerts(null)}
-              disabled={pausing}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors"
-            >
-              Resume Alerts Now
-            </button>
           </div>
-        ) : (
-          <div className="flex gap-2 pt-1">
-            {[
-              { label: '7 days', days: 7 },
-              { label: '30 days', days: 30 },
-              { label: '90 days', days: 90 },
-            ].map((p) => (
-              <button
-                key={p.days}
-                type="button"
-                onClick={() => handlePauseAlerts(p.days)}
-                disabled={pausing}
-                className="px-3.5 py-2 bg-gray-50 hover:bg-gray-100 text-gray-800 font-semibold text-xs rounded-xl border border-gray-200 transition-colors"
-              >
-                Pause {p.label}
-              </button>
-            ))}
+        </div>
+
+        {/* Next Eligible Date */}
+        {donor.next_eligible_date && (
+          <div className="p-4 rounded-2xl bg-[#ECFDF5] border border-emerald-200 flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-emerald-700 shrink-0" />
+            <p className="text-xs font-bold text-emerald-900 leading-snug">
+              Eligible to donate again on {donor.next_eligible_date}
+            </p>
           </div>
         )}
-      </div>
 
-      {/* Account controls */}
-      <div className="pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>{tCommon('logout')}</span>
-        </button>
+        {/* Pause Alerts Card */}
+        <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 shadow-xs space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-gray-600" />
+            <h3 className="font-bold text-sm text-gray-900">Pause Emergency Alerts</h3>
+          </div>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Temporarily travelling or unwell? Pause emergency calls and WhatsApp requests anytime.
+          </p>
 
-        <button
-          type="button"
-          onClick={handleDeleteAccount}
-          className="flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-800"
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>{tDonor('delete')}</span>
-        </button>
+          {isPaused ? (
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                Paused until {new Date(donor.paused_until).toLocaleDateString()}
+              </span>
+              <button
+                type="button"
+                onClick={() => handlePauseAlerts(null)}
+                disabled={pausing}
+                className="py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+              >
+                Resume Now
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2 pt-1">
+              {[
+                { label: '7 days', days: 7 },
+                { label: '30 days', days: 30 },
+                { label: '90 days', days: 90 },
+              ].map((p) => (
+                <button
+                  key={p.days}
+                  type="button"
+                  onClick={() => handlePauseAlerts(p.days)}
+                  disabled={pausing}
+                  className="flex-1 py-2.5 px-3 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xs rounded-xl border border-gray-200 transition-colors shadow-2xs"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Account controls */}
+        <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 divide-y divide-gray-100 text-xs">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full py-3 flex items-center justify-between text-gray-700 hover:text-gray-900 font-bold transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <LogOut className="w-4 h-4 text-gray-500" />
+              <span>Sign Out</span>
+            </div>
+            <span className="text-gray-400">›</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDeleteAccount}
+            className="w-full py-3 flex items-center justify-between text-red-600 hover:text-red-700 font-bold transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Donor Account</span>
+            </div>
+            <span className="text-red-300">›</span>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
