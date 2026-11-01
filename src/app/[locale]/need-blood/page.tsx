@@ -192,6 +192,19 @@ export default function NeedBloodFlowPage() {
 
     try {
       const bg = bloodGroup || 'O+';
+      const reasonMapping: Record<string, string> = {
+        accident: 'accident',
+        surgery: 'surgery',
+        childbirth: 'delivery',
+        delivery: 'delivery',
+        disease: 'other',
+        critical: 'other',
+        cancer: 'cancer',
+        thalassemia: 'thalassemia',
+        dengue: 'dengue',
+      };
+      const mappedReason = reasonMapping[selectedReason.toLowerCase()] || 'other';
+
       // 1. Create request via backend API
       const res = await fetch('/api/requests', {
         method: 'POST',
@@ -201,7 +214,7 @@ export default function NeedBloodFlowPage() {
           relation: 'family',
           patient_first_name: patientName || 'Patient',
           patient_age: patientAge ? parseInt(patientAge, 10) : 30,
-          reason: selectedReason.toLowerCase(),
+          reason: mappedReason,
           blood_group: bg,
           component: 'whole_blood',
           units_needed: unitsRequired || 2,
@@ -217,20 +230,20 @@ export default function NeedBloodFlowPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Failed to submit request');
+        throw new Error(data.message || data.error || 'Failed to submit request');
       }
 
       const requestId = data.id;
 
-      // 2. Trigger first dispatch wave
-      await fetch(`/api/requests/${requestId}/start`, {
+      // 2. Trigger first dispatch wave asynchronously
+      fetch(`/api/requests/${requestId}/start`, {
         method: 'POST',
-      });
+      }).catch((err) => console.error('Start wave error:', err));
 
-      // Brief transition delay before redirecting to live tracking
+      // Crisp transition delay before redirecting to live tracking
       setTimeout(() => {
         router.push(`/r/${requestId}`);
-      }, 1200);
+      }, 800);
     } catch (err: any) {
       console.error('Submission failed', err);
       setErrorMessage(err.message || 'Network error occurred');

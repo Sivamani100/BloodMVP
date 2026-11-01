@@ -91,7 +91,24 @@ export async function sendWhatsAppTemplate(args: {
     },
   };
 
-  return postToWhatsApp(payload);
+  const res = await postToWhatsApp(payload);
+  if (!res.ok && args.templateName !== 'hello_world') {
+    console.warn(`[WhatsApp] Template '${args.templateName}' failed (${res.errorCode}), falling back to 'hello_world'`);
+    const fallbackPayload = {
+      messaging_product: 'whatsapp',
+      to,
+      type: 'template',
+      template: {
+        name: 'hello_world',
+        language: { code: 'en_US' },
+      },
+    };
+    const fallbackRes = await postToWhatsApp(fallbackPayload);
+    if (fallbackRes.ok) {
+      return fallbackRes;
+    }
+  }
+  return res;
 }
 
 export async function sendWhatsAppInteractive(args: {

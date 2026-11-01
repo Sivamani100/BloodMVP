@@ -44,9 +44,11 @@ export async function POST(
     settings[row.key] = row.value;
   }
 
-  // Trigger first wave
-  await processRequest(request, settings);
+  // Trigger first wave asynchronously so HTTP response returns immediately without blocking UI
+  processRequest(request, settings).catch((err) => {
+    console.error('Async processRequest error:', err);
+  });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, started: true });
 }
 

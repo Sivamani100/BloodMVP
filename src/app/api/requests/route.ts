@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
         needed_by: neededBy,
         hospital_name: data.hospital_name.trim(),
         hospital_area: data.hospital_area || '',
-        hospital_geo: `SRID=4326;POINT(${data.lng} ${data.lat})`,
+        hospital_geo: `POINT(${data.lng} ${data.lat})`,
         ward_info: data.ward_info || null,
         hospital_phone: data.hospital_phone || null,
         allow_compatible: data.allow_compatible,
@@ -104,14 +104,26 @@ export async function POST(req: NextRequest) {
 
     if (insertErr || !inserted) {
       console.error('Direct fallback insert error:', insertErr);
-      const code = rpcErr.message.includes('too many')
+      const rawMsg = rpcErr?.message || insertErr?.message || 'Failed to create blood request';
+      const userFriendlyMessage = rawMsg.includes('duplicate active request')
+        ? 'An active blood request already exists for this patient at this hospital.'
+        : rawMsg.includes('too many requests')
+        ? 'Daily limit reached: Maximum 3 blood requests per day.'
+        : rawMsg.includes('phone verification')
+        ? 'Phone verification required before submitting a request.'
+        : rawMsg.includes('paused')
+        ? 'Service is currently paused.'
+        : rawMsg;
+
+      const code = rawMsg.includes('too many')
         ? 'rate_limited'
-        : rpcErr.message.includes('duplicate')
+        : rawMsg.includes('duplicate')
         ? 'duplicate_request'
-        : rpcErr.message.includes('paused')
+        : rawMsg.includes('paused')
         ? 'service_paused'
-        : 'unknown';
-      return NextResponse.json({ error: code, message: rpcErr.message }, { status: 400 });
+        : 'validation_error';
+
+      return NextResponse.json({ error: code, message: userFriendlyMessage }, { status: 400 });
     }
 
     finalRequestId = inserted.id;

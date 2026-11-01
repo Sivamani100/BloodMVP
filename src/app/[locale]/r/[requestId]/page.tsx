@@ -24,6 +24,7 @@ export default function LiveRequestPage() {
 
   const [request, setRequest] = useState<any>(null);
   const [donorCards, setDonorCards] = useState<any[]>([]);
+  const [allContacts, setAllContacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [revealingPhone, setRevealingPhone] = useState<string | null>(null);
   const [phoneMap, setPhoneMap] = useState<Record<string, string>>({});
@@ -37,67 +38,35 @@ export default function LiveRequestPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    async function loadInitial() {
-      const [reqRes, cardsRes] = await Promise.all([
-        supabase.from('requests').select('*').eq('id', requestId).single(),
-        supabase.from('request_donor_cards').select('*').eq('request_id', requestId),
-      ]);
-
-      if (reqRes.data) setRequest(reqRes.data);
-      if (cardsRes.data) {
-        setDonorCards(cardsRes.data);
-        if (cardsRes.data.length > 0) {
-          setToastNotification(`${cardsRes.data[cardsRes.data.length - 1].first_name} accepted your request`);
-        }
-      }
-      setLoading(false);
-    }
-
-    loadInitial();
-
-    // Set up Realtime subscriptions
-    const channel = supabase
-      .channel(`live-req-${requestId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'requests', filter: `id=eq.${requestId}` },
-        (payload: any) => {
-          if (payload.new) setRequest(payload.new);
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'request_donor_cards', filter: `request_id=eq.${requestId}` },
-        async (payload: any) => {
-          const { data } = await supabase
-            .from('request_donor_cards')
-            .select('*')
-            .eq('request_id', requestId);
-          if (data) {
-            setDonorCards(data);
-            if (payload.new?.first_name) {
-              setToastNotification(`${payload.new.first_name} accepted your request`);
-            }
+    async function loadProgress() {
+      try {
+        const res = await fetch(`/api/requests/${requestId}/progress`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.request) setRequest(data.request);
+          if (data.donorCards) {
+            setDonorCards(data.donorCards);
+          }
+          if (data.allContacts) {
+            setAllContacts(data.allContacts);
           }
         }
-      )
-      .subscribe();
+      } catch (err) {
+        console.error('Error fetching progress:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    // 10-second polling fallback
-    const interval = setInterval(async () => {
-      const [reqRes, cardsRes] = await Promise.all([
-        supabase.from('requests').select('*').eq('id', requestId).single(),
-        supabase.from('request_donor_cards').select('*').eq('request_id', requestId),
-      ]);
-      if (reqRes.data) setRequest(reqRes.data);
-      if (cardsRes.data) setDonorCards(cardsRes.data);
-    }, 10000);
+    loadProgress();
+
+    // Fast 3-second polling for real-time contact & ringing status updates
+    const interval = setInterval(loadProgress, 3000);
 
     return () => {
-      supabase.removeChannel(channel);
       clearInterval(interval);
     };
-  }, [requestId, supabase]);
+  }, [requestId]);
 
   async function handleCallDonor(contactId: string) {
     if (phoneMap[contactId]) {
@@ -391,18 +360,97 @@ export default function LiveRequestPage() {
             </div>
           ))}
 
-          {/* Fallback if no donors accepted yet: Waiting state */}
-          {donorCards.length === 0 && (
-            <div className="p-8 text-center bg-[#F9FAFB] rounded-3xl border border-dashed border-gray-200 space-y-3">
-              <Loader2 className="w-6 h-6 animate-spin text-red-600 mx-auto" />
-              <h3 className="font-bold text-gray-900 text-sm">
-                Ringing nearby donors now...
+          {/* Candidate Donors Being Contacted Now (Live Outreach Feed) */}
+          <div className="pt-2 space-y-2.5">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-500">
+                Nearby Donors Contacted ({allContacts.length})
               </h3>
-              <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
-                Automated phone calls and WhatsApp alerts are being sent to registered donors in widening distance rings.
-              </p>
+              <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+                Live Dispatch
+              </span>
             </div>
-          )}
+
+            {allContacts.length > 0 ? (
+              <div className="space-y-2">
+                {allContacts.map((contact, idx) => {
+                  const isAccepted = contact.status === 'accepted';
+                  const isCalling = contact.call_status === 'dialing' || contact.call_status === 'ringing';
+                  const isWaSent = contact.wa_status === 'sent' || contact.wa_status === 'delivered';
+
+                  return (
+                    <div
+                      key={contact.contact_id || idx}
+                      className={`p-3.5 rounded-2xl border transition-all ${
+                        isAccepted
+                          ? 'bg-emerald-50/60 border-emerald-200'
+                          : isCalling
+                          ? 'bg-blue-50/50 border-blue-200'
+                          : 'bg-white border-gray-100 shadow-2xs'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center font-black text-xs text-gray-800">
+                            {contact.first_name?.[0] || 'D'}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-extrabold text-sm text-gray-950">
+                                {contact.first_name}
+                              </h4>
+                              <span className="px-1.5 py-0.5 text-[10px] font-black rounded-md bg-red-100 text-red-700">
+                                {contact.blood_group}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-gray-500 font-medium">
+                              {contact.distance_km ? `${contact.distance_km} km away` : 'Nearby in Rajahmundry'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Real-time Status Badge */}
+                        <div>
+                          {isAccepted ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-full">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Accepted
+                            </span>
+                          ) : isCalling ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-100/80 px-2.5 py-1 rounded-full animate-pulse">
+                              <Phone className="w-3 h-3 animate-bounce" />
+                              Calling...
+                            </span>
+                          ) : isWaSent ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/60 px-2.5 py-1 rounded-full">
+                              <MessageCircle className="w-3 h-3" />
+                              WhatsApp Sent
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                              <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+                              Contacting...
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-8 text-center bg-[#F9FAFB] rounded-3xl border border-dashed border-gray-200 space-y-3">
+                <Loader2 className="w-6 h-6 animate-spin text-red-600 mx-auto" />
+                <h3 className="font-bold text-gray-900 text-sm">
+                  Ringing nearby donors now...
+                </h3>
+                <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+                  Automated phone calls and WhatsApp alerts are being sent to registered donors in widening distance rings.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Pulsing Status: Waiting for more, please be patient */}
