@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from '@/server/supabase-admin';
-import { sendWhatsAppTemplate } from '@/server/providers/whatsapp';
+import { sendWhatsAppTemplate, sendWhatsAppInteractive } from '@/server/providers/whatsapp';
 import { getVoiceProvider } from '@/server/providers/voice';
 import { decidePolicy } from './policy';
 import { Locale } from '@/lib/constants';
@@ -46,43 +46,57 @@ export async function dispatchContacts(
         let waPromise: Promise<any> = Promise.resolve({ ok: false, skipped: true });
         let voicePromise: Promise<any> = Promise.resolve({ ok: false, skipped: true });
 
-        // 1. WhatsApp Template send
+        // 1. WhatsApp Interactive question send
         if (policy.sendWhatsApp) {
-          waPromise = sendWhatsAppTemplate({
+          const alertBody = `🚨 *URGENT BLOOD REQUEST*\n\n` +
+            `Patient: *${c.patient_first_name}*\n` +
+            `Blood Needed: *${c.blood_group}* (${c.units_needed} unit${c.units_needed > 1 ? 's' : ''})\n` +
+            `Hospital: *${c.hospital_name}*${c.hospital_area ? `, ${c.hospital_area}` : ''}\n` +
+            `Urgency: *${request.urgency === 'now' ? 'Emergency (within 2 hours)' : 'Urgent today'}*\n\n` +
+            `Are you available and willing to donate blood now?`;
+
+          waPromise = sendWhatsAppInteractive({
             toE164: c.phone_e164,
-            templateName: 'blood_request_alert',
-            langCode: lang,
-            components: [
-              {
-                type: 'body',
-                parameters: [
-                  { type: 'text', text: c.patient_first_name },
-                  { type: 'text', text: c.blood_group },
-                  { type: 'text', text: String(c.units_needed) },
-                  { type: 'text', text: c.hospital_name },
-                  { type: 'text', text: c.hospital_area || '' },
-                  { type: 'text', text: request.urgency === 'now' ? '2 hours' : '6 hours' },
-                ],
-              },
-              {
-                type: 'button',
-                sub_type: 'quick_reply',
-                index: '0',
-                parameters: [{ type: 'payload', payload: `a|${c.id}|willing|yes` }],
-              },
-              {
-                type: 'button',
-                sub_type: 'quick_reply',
-                index: '1',
-                parameters: [{ type: 'payload', payload: `a|${c.id}|willing|no` }],
-              },
-              {
-                type: 'button',
-                sub_type: 'quick_reply',
-                index: '2',
-                parameters: [{ type: 'payload', payload: `a|${c.id}|stop|yes` }],
-              },
+            bodyText: alertBody,
+            buttons: [
+              { id: `a|${c.id}|willing|yes`, title: '✅ Yes, I can' },
+              { id: `a|${c.id}|willing|no`, title: '❌ No, unable' },
             ],
+          }).then(async (interactiveRes) => {
+            if (interactiveRes.ok) return interactiveRes;
+
+            // If interactive fails (e.g. 24h window), try template with fallback
+            console.warn('[WhatsApp] Interactive send failed, trying template...');
+            return sendWhatsAppTemplate({
+              toE164: c.phone_e164,
+              templateName: 'blood_request_alert',
+              langCode: lang,
+              components: [
+                {
+                  type: 'body',
+                  parameters: [
+                    { type: 'text', text: c.patient_first_name },
+                    { type: 'text', text: c.blood_group },
+                    { type: 'text', text: String(c.units_needed) },
+                    { type: 'text', text: c.hospital_name },
+                    { type: 'text', text: c.hospital_area || '' },
+                    { type: 'text', text: request.urgency === 'now' ? '2 hours' : '6 hours' },
+                  ],
+                },
+                {
+                  type: 'button',
+                  sub_type: 'quick_reply',
+                  index: '0',
+                  parameters: [{ type: 'payload', payload: `a|${c.id}|willing|yes` }],
+                },
+                {
+                  type: 'button',
+                  sub_type: 'quick_reply',
+                  index: '1',
+                  parameters: [{ type: 'payload', payload: `a|${c.id}|willing|no` }],
+                },
+              ],
+            });
           });
         }
 

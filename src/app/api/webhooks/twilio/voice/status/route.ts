@@ -51,9 +51,26 @@ export async function POST(req: NextRequest) {
       mappedStatus = 'dialing';
   }
 
+  let nextStatus: any = undefined;
+  if (['no_answer', 'busy', 'failed'].includes(mappedStatus)) {
+    const { data: curContact } = await supabase
+      .from('request_contacts')
+      .select('status')
+      .eq('id', contactId)
+      .single();
+
+    if (curContact && ['contacting', 'queued'].includes(curContact.status)) {
+      nextStatus = 'no_answer';
+    }
+  }
+
   await supabase
     .from('request_contacts')
-    .update({ call_status: mappedStatus, updated_at: new Date().toISOString() })
+    .update({
+      call_status: mappedStatus,
+      updated_at: new Date().toISOString(),
+      ...(nextStatus ? { status: nextStatus } : {}),
+    })
     .eq('id', contactId);
 
   return NextResponse.json({ ok: true });

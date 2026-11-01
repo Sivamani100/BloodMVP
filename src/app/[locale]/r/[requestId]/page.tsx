@@ -8,13 +8,21 @@ import { WizardHeader } from '@/components/ui/WizardHeader';
 import {
   Share2,
   Phone,
+  PhoneOff,
+  PhoneCall,
+  PhoneForwarded,
+  PhoneMissed,
   MessageCircle,
   CheckCircle2,
+  XCircle,
   AlertTriangle,
   Loader2,
   MapPin,
   X,
   Info,
+  Clock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export default function LiveRequestPage() {
@@ -31,11 +39,20 @@ export default function LiveRequestPage() {
   const [confirmCodeInput, setConfirmCodeInput] = useState<Record<string, string>>({});
   const [confirmingContact, setConfirmingContact] = useState<string | null>(null);
 
-  // Bottom drawer state
+  // Bottom drawer & filtering state
   const [showCloseDrawer, setShowCloseDrawer] = useState(false);
   const [toastNotification, setToastNotification] = useState<string | null>(null);
+  const [dismissedContactIds, setDismissedContactIds] = useState<string[]>([]);
+  const [hideUnavailable, setHideUnavailable] = useState(false);
+  const [currentTime, setCurrentTime] = useState<number>(Date.now());
 
   const supabase = createClient();
+
+  // 1-second clock ticker for live 10m countdown
+  useEffect(() => {
+    const clock = setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => clearInterval(clock);
+  }, []);
 
   useEffect(() => {
     async function loadProgress() {
@@ -361,96 +378,244 @@ export default function LiveRequestPage() {
           ))}
 
           {/* Candidate Donors Being Contacted Now (Live Outreach Feed) */}
-          <div className="pt-2 space-y-2.5">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-500">
-                Nearby Donors Contacted ({allContacts.length})
-              </h3>
-              <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
-                Live Dispatch
-              </span>
-            </div>
+          {(() => {
+            // Filter out contacts dismissed by user
+            const nonDismissedContacts = allContacts.filter(
+              (c) => !dismissedContactIds.includes(c.contact_id)
+            );
 
-            {allContacts.length > 0 ? (
-              <div className="space-y-2">
-                {allContacts.map((contact, idx) => {
-                  const isAccepted = contact.status === 'accepted';
-                  const isCalling = contact.call_status === 'dialing' || contact.call_status === 'ringing';
-                  const isWaSent = contact.wa_status === 'sent' || contact.wa_status === 'delivered';
+            // Count unavailable/declined contacts
+            const declinedContacts = nonDismissedContacts.filter((c) =>
+              ['declined', 'not_eligible', 'cancelled'].includes(c.status)
+            );
+            const declinedCount = declinedContacts.length;
 
-                  return (
-                    <div
-                      key={contact.contact_id || idx}
-                      className={`p-3.5 rounded-2xl border transition-all ${
-                        isAccepted
-                          ? 'bg-emerald-50/60 border-emerald-200'
-                          : isCalling
-                          ? 'bg-blue-50/50 border-blue-200'
-                          : 'bg-white border-gray-100 shadow-2xs'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center font-black text-xs text-gray-800">
-                            {contact.first_name?.[0] || 'D'}
+            // Filter based on hideUnavailable toggle
+            const visibleContacts = nonDismissedContacts.filter((c) => {
+              if (hideUnavailable && ['declined', 'not_eligible', 'cancelled'].includes(c.status)) {
+                return false;
+              }
+              return true;
+            });
+
+            // Calculate 10-minute wave timer from the earliest created contact
+            const activeContacts = nonDismissedContacts.filter(
+              (c) => !['accepted', 'declined', 'not_eligible', 'cancelled'].includes(c.status)
+            );
+            const waveEarliestCreated =
+              activeContacts.length > 0 && activeContacts[0].created_at
+                ? new Date(activeContacts[0].created_at).getTime()
+                : allContacts.length > 0 && allContacts[0].created_at
+                ? new Date(allContacts[0].created_at).getTime()
+                : null;
+
+            const elapsedWaveSec = waveEarliestCreated
+              ? Math.max(0, Math.floor((currentTime - waveEarliestCreated) / 1000))
+              : 0;
+            const TEN_MIN_SEC = 600;
+            const remainingWaveSec = Math.max(0, TEN_MIN_SEC - elapsedWaveSec);
+            const waveMins = Math.floor(remainingWaveSec / 60);
+            const waveSecs = remainingWaveSec % 60;
+
+            return (
+              <div className="pt-2 space-y-2.5">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-gray-500">
+                      Nearby Donors Contacted ({visibleContacts.length})
+                    </h3>
+                    {remainingWaveSec > 0 ? (
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+                        <Clock className="w-3 h-3 text-slate-500" />
+                        {waveMins}:{waveSecs < 10 ? '0' : ''}{waveSecs} left
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        <Clock className="w-3 h-3 text-amber-600" />
+                        10m window ended
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {declinedCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setHideUnavailable(!hideUnavailable)}
+                        className="text-[10px] font-bold text-gray-600 hover:text-gray-900 flex items-center gap-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 px-2 py-0.5 rounded-full transition-colors"
+                      >
+                        {hideUnavailable ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                        {hideUnavailable ? `Show unable (${declinedCount})` : `Hide unable`}
+                      </button>
+                    )}
+                    <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full animate-pulse">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+                      Live Dispatch
+                    </span>
+                  </div>
+                </div>
+
+                {visibleContacts.length > 0 ? (
+                  <div className="space-y-2">
+                    {visibleContacts.map((contact, idx) => {
+                      const isAccepted = contact.status === 'accepted';
+                      const isDeclined = ['declined', 'not_eligible', 'cancelled'].includes(contact.status);
+                      const isTimedOut =
+                        contact.created_at &&
+                        currentTime - new Date(contact.created_at).getTime() > 10 * 60 * 1000 &&
+                        !isAccepted;
+                      const isNoAnswer =
+                        contact.status === 'no_answer' ||
+                        ['no_answer', 'busy'].includes(contact.call_status) ||
+                        contact.call_status === 'failed';
+                      const isCallEnded = contact.call_status === 'completed' && !isAccepted && !isDeclined;
+                      const isOnCall = contact.call_status === 'answered' && !isAccepted && !isDeclined;
+                      const isCalling = ['dialing', 'ringing'].includes(contact.call_status);
+                      const isWaSent = ['sent', 'delivered', 'read'].includes(contact.wa_status);
+                      const isWaRead = contact.wa_status === 'read';
+
+                      return (
+                        <div
+                          key={contact.contact_id || idx}
+                          className={`p-3.5 rounded-2xl border transition-all ${
+                            isAccepted
+                              ? 'bg-emerald-50/60 border-emerald-200 shadow-2xs'
+                              : isDeclined
+                              ? 'bg-rose-50/20 border-rose-100 opacity-80 hover:opacity-100'
+                              : isCalling
+                              ? 'bg-blue-50/50 border-blue-200 shadow-xs'
+                              : isOnCall
+                              ? 'bg-indigo-50/40 border-indigo-200'
+                              : isCallEnded
+                              ? 'bg-slate-50/60 border-slate-200'
+                              : isNoAnswer
+                              ? 'bg-amber-50/20 border-amber-100'
+                              : 'bg-white border-gray-100 shadow-2xs'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className={`w-10 h-10 rounded-full border flex items-center justify-center font-black text-xs shrink-0 ${
+                                  isAccepted
+                                    ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
+                                    : isDeclined
+                                    ? 'bg-rose-50 border-rose-200 text-rose-700'
+                                    : 'bg-gray-100 border-gray-200 text-gray-800'
+                                }`}
+                              >
+                                {contact.first_name?.[0] || 'D'}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-extrabold text-sm text-gray-950 truncate">
+                                    {contact.first_name}
+                                  </h4>
+                                  <span className="px-1.5 py-0.5 text-[10px] font-black rounded-md bg-red-100 text-red-700 shrink-0">
+                                    {contact.blood_group}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-gray-500 font-medium truncate">
+                                  {contact.distance_km ? `${contact.distance_km} km away` : 'Nearby in Rajahmundry'}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Real-time Status Badge & Actions */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {/* Primary Status Badge */}
+                              {isAccepted ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-100/80 border border-emerald-200 px-2.5 py-1 rounded-full">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                  Accepted
+                                </span>
+                              ) : isDeclined ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full">
+                                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                                  Can&apos;t Donate
+                                </span>
+                              ) : isTimedOut ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
+                                  <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                  Timed Out (10m)
+                                </span>
+                              ) : isCalling ? (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full animate-pulse">
+                                  <Phone className="w-3.5 h-3.5 animate-bounce text-blue-600" />
+                                  Calling...
+                                </span>
+                              ) : isOnCall ? (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full animate-pulse">
+                                  <PhoneForwarded className="w-3.5 h-3.5 text-indigo-600" />
+                                  On Call...
+                                </span>
+                              ) : isCallEnded ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+                                  <PhoneCall className="w-3.5 h-3.5 text-slate-500" />
+                                  Call Ended
+                                </span>
+                              ) : isNoAnswer ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                                  <PhoneOff className="w-3.5 h-3.5 text-amber-600" />
+                                  No Answer
+                                </span>
+                              ) : isWaSent ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/60 border border-emerald-200/80 px-2.5 py-1 rounded-full">
+                                  <MessageCircle className="w-3 h-3 text-emerald-600" />
+                                  {isWaRead ? 'WhatsApp Seen' : 'WhatsApp Sent'}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                                  <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+                                  Contacting...
+                                </span>
+                              )}
+
+                              {/* Dismiss / Remove button for unavailable donors */}
+                              {isDeclined && (
+                                <button
+                                  type="button"
+                                  onClick={() => setDismissedContactIds((prev) => [...prev, contact.contact_id])}
+                                  className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
+                                  title="Remove from list"
+                                  aria-label="Remove from list"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-extrabold text-sm text-gray-950">
-                                {contact.first_name}
-                              </h4>
-                              <span className="px-1.5 py-0.5 text-[10px] font-black rounded-md bg-red-100 text-red-700">
-                                {contact.blood_group}
+
+                          {/* WhatsApp Delivery indicator if call is also ongoing */}
+                          {!isAccepted && !isDeclined && isWaSent && (isCalling || isOnCall || isCallEnded || isNoAnswer) && (
+                            <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                              <span className="text-gray-500 flex items-center gap-1">
+                                <MessageCircle className="w-3 h-3 text-emerald-600" />
+                                WhatsApp Alert:
+                              </span>
+                              <span className="font-semibold text-emerald-700">
+                                {isWaRead ? 'Seen by donor' : 'Delivered to phone'}
                               </span>
                             </div>
-                            <p className="text-[11px] text-gray-500 font-medium">
-                              {contact.distance_km ? `${contact.distance_km} km away` : 'Nearby in Rajahmundry'}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Real-time Status Badge */}
-                        <div>
-                          {isAccepted ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-full">
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              Accepted
-                            </span>
-                          ) : isCalling ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-100/80 px-2.5 py-1 rounded-full animate-pulse">
-                              <Phone className="w-3 h-3 animate-bounce" />
-                              Calling...
-                            </span>
-                          ) : isWaSent ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/60 px-2.5 py-1 rounded-full">
-                              <MessageCircle className="w-3 h-3" />
-                              WhatsApp Sent
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                              <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
-                              Contacting...
-                            </span>
                           )}
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center bg-[#F9FAFB] rounded-3xl border border-dashed border-gray-200 space-y-3">
+                    <Loader2 className="w-6 h-6 animate-spin text-red-600 mx-auto" />
+                    <h3 className="font-bold text-gray-900 text-sm">
+                      Ringing nearby donors now...
+                    </h3>
+                    <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+                      Automated phone calls and WhatsApp alerts are being sent to registered donors in widening distance rings.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="p-8 text-center bg-[#F9FAFB] rounded-3xl border border-dashed border-gray-200 space-y-3">
-                <Loader2 className="w-6 h-6 animate-spin text-red-600 mx-auto" />
-                <h3 className="font-bold text-gray-900 text-sm">
-                  Ringing nearby donors now...
-                </h3>
-                <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
-                  Automated phone calls and WhatsApp alerts are being sent to registered donors in widening distance rings.
-                </p>
-              </div>
-            )}
-          </div>
+            );
+          })()}
         </div>
 
         {/* Pulsing Status: Waiting for more, please be patient */}

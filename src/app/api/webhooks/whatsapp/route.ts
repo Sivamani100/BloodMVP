@@ -6,7 +6,11 @@ import {
   parseButtonId,
   isStopKeyword,
   handleWAFlowStep,
+  YES_KEYWORDS,
+  NO_KEYWORDS,
+  normalizeInput,
 } from '@/server/assistant/wa-flow';
+import { StepKey } from '@/server/assistant/script';
 import { sendWhatsAppInteractive, sendWhatsAppText } from '@/server/providers/whatsapp';
 import { Locale } from '@/lib/constants';
 
@@ -131,66 +135,108 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // Handle interactive button or quick-reply button
+      // Handle interactive button or quick-reply button, or typed text
+      let contactId: string | null = null;
+      let step: StepKey | null = null;
+      let value: string | null = null;
+
       if (buttonPayload) {
         const parsed = parseButtonId(buttonPayload);
         if (parsed) {
-          const { contactId, step, value } = parsed;
+          contactId = parsed.contactId;
+          step = parsed.step as StepKey;
+          value = parsed.value;
+        }
+      } else if (textBody) {
+        // Resolve contact by sender phone
+        const { data: priv } = await supabase
+          .from('donor_private')
+          .select('donor_id')
+          .eq('phone_e164', senderPhone)
+          .single();
 
-          // Fetch contact, request, and donor info
-          const { data: contact } = await supabase
+        if (priv?.donor_id) {
+          const { data: activeContact } = await supabase
             .from('request_contacts')
-            .select('*, requests(*), donors(*)')
-            .eq('id', contactId)
+            .select('id, answers, status')
+            .eq('donor_id', priv.donor_id)
+            .in('status', ['contacting', 'queued'])
+            .order('created_at', { ascending: false })
+            .limit(1)
             .single();
 
-          if (contact && contact.requests && contact.donors) {
-            const lang: Locale = (contact.donors.languages?.[0] as Locale) || 'en';
-            const flowRes = handleWAFlowStep({
-              contactId,
-              step: step as any,
-              value,
-              lang,
-              answers: (contact.answers as any) || {},
-              request: contact.requests as any,
-              donor: {
-                first_name: contact.donors.first_name || 'Donor',
-                gender: (contact.donors.gender as any) || 'male',
-              },
-              donationCode: contact.donation_code,
+          if (activeContact) {
+            contactId = activeContact.id;
+            const answers = (activeContact.answers as any) || {};
+            step = (answers._wa_step as StepKey) || 'willing';
+
+            const norm = normalizeInput(textBody);
+            if (YES_KEYWORDS.has(norm) || norm === '1') {
+              value = 'yes';
+            } else if (NO_KEYWORDS.has(norm) || norm === '2') {
+              value = 'no';
+            } else if (step === 'eta') {
+              const num = parseInt(textBody.replace(/\D/g, ''), 10);
+              value = num ? String(num) : '30';
+            }
+          }
+        }
+      }
+
+      if (contactId && step && value) {
+        // Fetch contact, request, and donor info
+        const { data: contact } = await supabase
+          .from('request_contacts')
+          .select('*, requests(*), donors(*)')
+          .eq('id', contactId)
+          .single();
+
+        if (contact && contact.requests && contact.donors) {
+          const lang: Locale = (contact.donors.languages?.[0] as Locale) || 'en';
+          const flowRes = handleWAFlowStep({
+            contactId,
+            step: step as any,
+            value,
+            lang,
+            answers: (contact.answers as any) || {},
+            request: contact.requests as any,
+            donor: {
+              first_name: contact.donors.first_name || 'Donor',
+              gender: (contact.donors.gender as any) || 'male',
+            },
+            donationCode: contact.donation_code,
+          });
+
+          // If a final decision was reached, update contact via finalize_contact RPC
+          if (flowRes.finalDecision) {
+            const status = flowRes.finalDecision === 'opt_out' ? 'declined' : flowRes.finalDecision;
+            await supabase.rpc('finalize_contact', {
+              p_contact_id: contactId,
+              p_status: status as any,
+              p_via: 'whatsapp',
+              p_answers: (flowRes.updatedAnswers as any) ?? {},
+              p_eta: flowRes.updatedAnswers?.eta_minutes ?? undefined,
+              p_share_phone: flowRes.updatedAnswers?.share_phone ?? undefined,
             });
+          } else if (flowRes.updatedAnswers) {
+            await supabase
+              .from('request_contacts')
+              .update({ answers: flowRes.updatedAnswers as any, updated_at: new Date().toISOString() })
+              .eq('id', contactId);
+          }
 
-            // If a final decision was reached, update contact via finalize_contact RPC
-            if (flowRes.finalDecision) {
-              const status = flowRes.finalDecision === 'opt_out' ? 'declined' : flowRes.finalDecision;
-              await supabase.rpc('finalize_contact', {
-                p_contact_id: contactId,
-                p_status: status as any,
-                p_via: 'whatsapp',
-                p_answers: (flowRes.updatedAnswers as any) ?? {},
-                p_eta: flowRes.updatedAnswers?.eta_minutes ?? undefined,
-                p_share_phone: flowRes.updatedAnswers?.share_phone ?? undefined,
-              });
-            } else if (flowRes.updatedAnswers) {
-              await supabase
-                .from('request_contacts')
-                .update({ answers: flowRes.updatedAnswers as any, updated_at: new Date().toISOString() })
-                .eq('id', contactId);
-            }
-
-            // Send reply message
-            if (flowRes.type === 'interactive' && flowRes.buttons) {
-              await sendWhatsAppInteractive({
-                toE164: senderPhone,
-                bodyText: flowRes.text,
-                buttons: flowRes.buttons,
-              });
-            } else if (flowRes.text) {
-              await sendWhatsAppText({
-                toE164: senderPhone,
-                text: flowRes.text,
-              });
-            }
+          // Send reply message
+          if (flowRes.type === 'interactive' && flowRes.buttons) {
+            await sendWhatsAppInteractive({
+              toE164: senderPhone,
+              bodyText: flowRes.text,
+              buttons: flowRes.buttons,
+            });
+          } else if (flowRes.text) {
+            await sendWhatsAppText({
+              toE164: senderPhone,
+              text: flowRes.text,
+            });
           }
         }
       }

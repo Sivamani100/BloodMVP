@@ -42,6 +42,28 @@ export async function GET(
     .eq('request_id', requestId)
     .order('created_at', { ascending: false });
 
+  // Auto-expire contacts older than 10 minutes that haven't accepted
+  const now = Date.now();
+  const TEN_MINUTES_MS = 10 * 60 * 1000;
+  const timedOutIds: string[] = [];
+
+  for (const c of contacts || []) {
+    if (['contacting', 'queued'].includes(c.status)) {
+      const ageMs = now - new Date(c.created_at).getTime();
+      if (ageMs > TEN_MINUTES_MS) {
+        timedOutIds.push(c.id);
+        c.status = 'no_answer';
+      }
+    }
+  }
+
+  if (timedOutIds.length > 0) {
+    await adminSb
+      .from('request_contacts')
+      .update({ status: 'no_answer', updated_at: new Date().toISOString() })
+      .in('id', timedOutIds);
+  }
+
   // 4. Enrich contacts with donor first_name and blood_group
   const donorIds = (contacts || []).map((c) => c.donor_id);
   const { data: donors } = await adminSb
@@ -63,6 +85,7 @@ export async function GET(
       status: c.status, // queued, contacting, accepted, declined, not_eligible, no_answer
       wa_status: c.wa_status, // sent, delivered, read, failed
       call_status: c.call_status, // dialing, ringing, answered, completed, no_answer
+      created_at: c.created_at,
       updated_at: c.updated_at,
     };
   });
