@@ -23,3 +23,4 @@ export async function DELETE(req: NextRequest) {
   await supabase.auth.signOut();
   return NextResponse.json({ success: true });
 }
+

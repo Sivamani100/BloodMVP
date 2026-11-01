@@ -39,3 +39,4 @@ export function canContact(rawPhone: string): boolean {
 
   return allowlist.includes(phone);
 }
+

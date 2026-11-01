@@ -71,3 +71,4 @@ export function getEnv(): Env {
   parsedEnv = result.data;
   return parsedEnv;
 }
+

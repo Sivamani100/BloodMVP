@@ -73,3 +73,4 @@ This document records the architectural and design decisions made for the **Bloo
   - In non-production environments (`NODE_ENV !== 'production'`), outbound WhatsApp and Twilio Voice dispatches are filtered against `OUTBOUND_ALLOWLIST`.
   - Any number not present in the allowlist is automatically skipped with a mock success logged.
   - In production, allowlist checks are disabled and messages dispatch to all verified donors.
+

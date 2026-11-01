@@ -28,3 +28,4 @@ export const FALLBACK_VOICE: VoiceConfig = {
 export function getVoiceForLocale(locale: Locale): VoiceConfig {
   return TWILIO_VOICES[locale] || TWILIO_VOICES.en;
 }
+

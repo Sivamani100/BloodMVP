@@ -75,3 +75,4 @@ const args = process.argv.slice(2);
 if (args[0]) {
   importBanksFromCSV(args[0]).catch(console.error);
 }
+

@@ -54,3 +54,4 @@ export function verifySupabaseHookSignature(
     return false;
   }
 }
+

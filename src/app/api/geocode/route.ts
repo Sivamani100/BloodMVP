@@ -39,3 +39,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to contact geocoding service' }, { status: 500 });
   }
 }
+

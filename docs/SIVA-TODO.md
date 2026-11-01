@@ -95,3 +95,4 @@ This inserts 5 verified, active test donors with coordinates near Rajahmundry ho
 3. In Vercel Project Settings > **Environment Variables**, add the variables from `.env.local`.
 4. Deploy!
 5. In production, the internal tick is automatically triggered by Supabase `pg_cron` (already installed in the database). You can also configure Vercel Cron via `vercel.json` if desired.
+

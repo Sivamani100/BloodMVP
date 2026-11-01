@@ -39,3 +39,4 @@ export function decrypt(encryptedText: string, customKey?: string): string {
   const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   return decrypted.toString('utf8');
 }
+

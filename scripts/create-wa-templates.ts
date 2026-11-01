@@ -156,3 +156,4 @@ async function syncTemplates() {
 }
 
 syncTemplates().catch(console.error);
+

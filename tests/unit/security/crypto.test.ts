@@ -37,3 +37,4 @@ describe('SEC-1 Crypto Helper (AES-256-GCM)', () => {
     expect(() => decrypt(ciphertext, wrongKey)).toThrow();
   });
 });
+

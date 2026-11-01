@@ -41,19 +41,23 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const neededBy = data.needed_by && !isNaN(Date.parse(data.needed_by))
+    ? new Date(data.needed_by).toISOString()
+    : new Date(Date.now() + 6 * 3600 * 1000).toISOString();
+
   // Call create_request RPC with user's session
   const { data: requestId, error: rpcErr } = await supabase.rpc('create_request', {
-    p_requester_name: data.requester_name,
+    p_requester_name: data.requester_name.trim(),
     p_relation: data.relation,
-    p_patient_first_name: data.patient_first_name,
-    p_patient_age: data.patient_age || 0,
-    p_reason: data.reason || '',
+    p_patient_first_name: data.patient_first_name.trim(),
+    p_patient_age: data.patient_age || 30,
+    p_reason: (data.reason as any) || 'other',
     p_blood_group: data.blood_group,
     p_component: data.component,
     p_units: data.units_needed,
     p_urgency: data.urgency,
-    p_needed_by: data.needed_by || new Date().toISOString(),
-    p_hospital_name: data.hospital_name,
+    p_needed_by: neededBy,
+    p_hospital_name: data.hospital_name.trim(),
     p_hospital_area: data.hospital_area || '',
     p_lat: data.lat,
     p_lng: data.lng,

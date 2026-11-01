@@ -21,3 +21,4 @@ export function getWaveMinutes(urgency: UrgencyLevel, customOverrides?: Record<s
   }
   return WAVE_MINUTES[urgency] || 3;
 }
+

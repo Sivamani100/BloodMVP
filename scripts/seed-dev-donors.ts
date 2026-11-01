@@ -3,35 +3,25 @@ import { getEnv } from '../src/server/env';
 import { encrypt } from '../src/server/security/crypto';
 import { REQUIRED_CONSENTS } from '../src/lib/donor-rules';
 
+const DEFAULT_TEST_DONORS = [
+  { name: 'Ramesh Kumar', phone: '+919900000001', group: 'O+', lat: 17.0010, lng: 81.8035, gender: 'male', dob: '1996-03-12', weight: 68 },
+  { name: 'Suresh Varma', phone: '+919900000002', group: 'A+', lat: 17.0045, lng: 81.7990, gender: 'male', dob: '1998-07-24', weight: 72 },
+  { name: 'Priya Reddy', phone: '+919900000003', group: 'B+', lat: 16.9950, lng: 81.8100, gender: 'female', dob: '2001-11-05', weight: 55 },
+  { name: 'Lakshmi Rao', phone: '+919900000004', group: 'AB+', lat: 17.0120, lng: 81.7890, gender: 'female', dob: '1999-09-18', weight: 58 },
+  { name: 'Anand Murthy', phone: '+919900000005', group: 'O-', lat: 16.9880, lng: 81.8200, gender: 'male', dob: '1994-01-30', weight: 76 },
+];
+
 async function seedDevDonors() {
   const env = getEnv();
   const rawDonors = env.DEV_TEST_DONORS;
 
-  if (!rawDonors) {
-    console.log('No DEV_TEST_DONORS found in environment. Example format:');
-    console.log(
-      JSON.stringify([
-        {
-          name: 'Siva',
-          phone: '+919999900001',
-          group: 'O+',
-          lat: 17.0005,
-          lng: 81.804,
-          gender: 'male',
-          dob: '2003-01-01',
-          weight: 65,
-        },
-      ])
-    );
-    return;
-  }
-
-  let donorsList: any[] = [];
-  try {
-    donorsList = JSON.parse(rawDonors);
-  } catch (err) {
-    console.error('Failed to parse DEV_TEST_DONORS JSON:', err);
-    return;
+  let donorsList: any[] = DEFAULT_TEST_DONORS;
+  if (rawDonors) {
+    try {
+      donorsList = JSON.parse(rawDonors);
+    } catch (err) {
+      console.error('Failed to parse DEV_TEST_DONORS JSON, using defaults:', err);
+    }
   }
 
   const supabase = getSupabaseAdmin();
@@ -62,6 +52,7 @@ async function seedDevDonors() {
     await supabase.from('donors').upsert({
       id: userId,
       full_name: donor.name,
+      languages: ['en', 'te'],
       dob: donor.dob || '2000-01-01',
       gender: donor.gender || 'male',
       weight_kg: donor.weight || 65,
@@ -125,3 +116,4 @@ async function seedDevDonors() {
 }
 
 seedDevDonors().catch(console.error);
+

@@ -82,3 +82,4 @@ export const MONEY_WORDS = [
 export const LOCALES = ['en', 'te', 'hi'] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
+

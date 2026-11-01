@@ -107,3 +107,4 @@ export function checkActivation(input: DonorValidationInput): ActivationChecklis
     missingReasons,
   };
 }
+

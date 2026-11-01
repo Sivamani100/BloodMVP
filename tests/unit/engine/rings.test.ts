@@ -27,3 +27,4 @@ describe('BR-6 Engine Rings and Gates', () => {
     expect(getWaveMinutes('planned')).toBe(60);
   });
 });
+

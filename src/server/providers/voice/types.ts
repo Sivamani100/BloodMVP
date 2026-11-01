@@ -6,3 +6,4 @@ export interface VoiceProvider {
     lang: 'en' | 'te' | 'hi';
   }): Promise<{ ok: boolean; callSid?: string; errorCode?: string; retryable: boolean }>;
 }
+

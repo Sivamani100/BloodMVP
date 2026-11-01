@@ -23,3 +23,4 @@ describe('SEC Allowlist and Phone Validation', () => {
     expect(canContact('+911234567890')).toBe(false);
   });
 });
+

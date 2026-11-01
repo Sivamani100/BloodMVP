@@ -39,3 +39,4 @@ async function makeAdmin(phoneArg: string) {
 
 const targetPhone = process.argv[2];
 makeAdmin(targetPhone).catch(console.error);
+

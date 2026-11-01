@@ -28,3 +28,4 @@ pg_dump "${SUPABASE_DB_URL}" \
 
 echo "Backup completed successfully: ${FILENAME}"
 echo "Recommendation: Encrypt this backup using gpg or age before storing offsite."
+

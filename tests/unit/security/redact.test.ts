@@ -35,3 +35,4 @@ describe('SEC-9 Redact Utility', () => {
     expect(redacted.user.name).toBe('Suresh');
   });
 });
+
