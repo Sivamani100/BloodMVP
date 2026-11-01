@@ -4,8 +4,8 @@ const envSchema = z.object({
   APP_ENV: z.enum(['local', 'staging', 'production']).default('local'),
   PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
 
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().default('https://yffjclzgracjbmqkjuon.supabase.co'),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).default('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpjbHpncmFjamJtcWtqdW9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0NjUwNjMsImV4cCI6MjEwOTA0MTA2M30.wXK2Q9o6RYv54nIbi2Zc0PRCBrFjkIIwfln5ZT76ycA'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   SUPABASE_DB_URL: z.string().optional(),
   SEND_SMS_HOOK_SECRET: z.string().optional(),
@@ -39,10 +39,19 @@ export function getEnv(): Env {
   if (parsedEnv) return parsedEnv;
 
   const result = envSchema.safeParse({
-    APP_ENV: process.env.APP_ENV,
-    PUBLIC_APP_URL: process.env.PUBLIC_APP_URL,
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    APP_ENV: process.env.APP_ENV || (process.env.VERCEL ? 'production' : 'local'),
+    PUBLIC_APP_URL:
+      process.env.PUBLIC_APP_URL ||
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : 'http://localhost:3000'),
+    NEXT_PUBLIC_SUPABASE_URL:
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://yffjclzgracjbmqkjuon.supabase.co',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpjbHpncmFjamJtcWtqdW9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0NjUwNjMsImV4cCI6MjEwOTA0MTA2M30.wXK2Q9o6RYv54nIbi2Zc0PRCBrFjkIIwfln5ZT76ycA',
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_DB_URL: process.env.SUPABASE_DB_URL,
     SEND_SMS_HOOK_SECRET: process.env.SEND_SMS_HOOK_SECRET,
