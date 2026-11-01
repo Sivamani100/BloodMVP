@@ -111,17 +111,40 @@ export async function processRequest(
       p_limit: limit,
     });
 
-    if (cErr || !candidates || candidates.length === 0) {
+    let currentCandidates = candidates || [];
+    let currentRing = ring;
+
+    // If candidate donors in this narrow ring are fewer than the needed units,
+    // expand outward up to 5km so enough donors are alerted simultaneously
+    while (
+      currentCandidates.length < needed &&
+      ringIdx + 1 < RINGS_KM.length &&
+      RINGS_KM[ringIdx + 1] <= (r.approved_up_to_km || 50) &&
+      RINGS_KM[ringIdx + 1] <= 5
+    ) {
+      ringIdx++;
+      currentRing = RINGS_KM[ringIdx];
+      const { data: widerCandidates } = await supabase.rpc('find_candidate_donors', {
+        p_request_id: r.id,
+        p_ring_km: currentRing,
+        p_limit: limit,
+      });
+      if (widerCandidates && widerCandidates.length > currentCandidates.length) {
+        currentCandidates = widerCandidates;
+      }
+    }
+
+    if (currentCandidates.length === 0) {
       ringIdx++;
       continue; // empty ring skipped instantly!
     }
 
     // Insert contacts
     const waveNo = (r.wave_no || 0) + 1;
-    const toInsert = candidates.map((cand: any) => ({
+    const toInsert = currentCandidates.map((cand: any) => ({
       request_id: r.id,
       donor_id: cand.donor_id,
-      ring_km: ring,
+      ring_km: currentRing,
       wave_no: waveNo,
       distance_km: cand.distance_km,
       status: 'queued' as const,
@@ -172,7 +195,7 @@ export async function processRequest(
     await supabase
       .from('requests')
       .update({
-        current_ring_km: ring,
+        current_ring_km: currentRing,
         wave_no: waveNo,
         wave_expires_at: waveExpiresAt.toISOString(),
         next_tick_at: waveExpiresAt.toISOString(),
