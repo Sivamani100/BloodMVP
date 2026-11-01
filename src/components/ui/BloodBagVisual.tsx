@@ -148,3 +148,4 @@ export function BloodBagVisual({ className = 'w-44 h-64' }: { className?: string
     </div>
   );
 }
+
