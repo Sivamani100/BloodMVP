@@ -1,0 +1,133 @@
+{
+  "home": {
+    "need_blood": "Need Blood",
+    "become_donor": "Become a donor",
+    "tagline": "Find blood donors near the hospital, fast.",
+    "how_it_works": "How it works",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "nav": {
+    "language": "Language",
+    "home": "Home",
+    "login": "Log in",
+    "logout": "Log out",
+    "donor_dashboard": "Donor Dashboard",
+    "admin": "Admin"
+  },
+  "req": {
+    "blood_group": "Blood group",
+    "dont_know_group": "I don't know",
+    "dont_know_help": "Ask the hospital for the exact blood group. You can still see nearby blood banks.",
+    "component": "Type of blood",
+    "component_whole_blood": "Whole blood",
+    "component_red_cells": "Red cells",
+    "component_platelets": "Platelets",
+    "component_plasma": "Plasma",
+    "units": "Units needed",
+    "urgency": "How urgent?",
+    "urgency_now": "Right now",
+    "urgency_six_hours": "Within 6 hours",
+    "urgency_twenty_four_hours": "Within 24 hours",
+    "urgency_planned": "Planned date",
+    "hospital": "Hospital",
+    "hospital_name": "Hospital Name",
+    "hospital_area": "Area / Landmark",
+    "patient_first_name": "Patient's First Name",
+    "patient_age": "Patient's Age",
+    "requester_name": "Your Name",
+    "relation": "Relationship to Patient",
+    "relation_self": "Self",
+    "relation_family": "Family",
+    "relation_friend": "Friend",
+    "relation_hospital_staff": "Hospital Staff",
+    "reason": "Reason (Optional)",
+    "note": "Optional Note (No money or phone numbers)",
+    "use_my_location": "Use my location",
+    "search_donors": "Search donors",
+    "send": "Send request",
+    "next": "Next step",
+    "review_title": "Review Request Details"
+  },
+  "banks": {
+    "title": "Nearest blood banks",
+    "verified_ago": "Checked {minutes} min ago",
+    "not_verified": "Not verified. Please call.",
+    "call_before_go": "Stock changes quickly. Call before you go.",
+    "trust_reliable": "Reliable",
+    "trust_ok": "OK",
+    "trust_low": "Often wrong",
+    "call": "Call Bank",
+    "directions": "Directions",
+    "units_available": "{count} units in stock"
+  },
+  "live": {
+    "searching": "Searching within {km} km",
+    "progress": "{contacted} contacted · {accepted} accepted · need {need}",
+    "call_donor": "Call",
+    "standby": "Standby",
+    "got_blood": "We got blood",
+    "cancel": "Cancel request",
+    "timeline": "Activity Timeline",
+    "donor_revealed": "Phone revealed. Tap to call directly.",
+    "waiting_answers": "Waiting for nearby donors to answer calls and WhatsApp...",
+    "confirm_donation": "Confirm with Donation Code"
+  },
+  "gate": {
+    "title": "Search further?",
+    "body": "We searched {from} km around the hospital. Continue to {to} km?",
+    "body_100": "Donors this far may take hours to reach you. Do you still want us to continue? Please also call the nearest large blood banks.",
+    "yes": "Yes, continue",
+    "no": "No, stop"
+  },
+  "exhausted": {
+    "title": "We could not find enough donors",
+    "body": "Our team has been alerted. Please call the blood banks listed, the hospital's own blood centre, or the 108 ambulance helpline."
+  },
+  "compat": {
+    "prompt": "No exact-group donor yet. Ask the doctor: can other compatible blood groups be used?"
+  },
+  "donor": {
+    "consent_title": "Before we start",
+    "state_active": "You are active",
+    "state_pending": "Almost there",
+    "next_eligible": "You can donate again on {date}",
+    "pause": "Pause alerts",
+    "resume": "Resume alerts",
+    "delete": "Delete my account",
+    "not_eligible_now": "You cannot donate right now. That is okay. Thank you for wanting to help.",
+    "history": "Donation History",
+    "profile": "Profile Details",
+    "checklist_title": "Action Checklist to Become Active"
+  },
+  "common": {
+    "safety": "Blood never asks for money or OTP. The final health check is done by the doctor.",
+    "continue": "Continue",
+    "back": "Back",
+    "logout": "Log out",
+    "loading": "Loading...",
+    "save": "Save",
+    "confirm": "Confirm"
+  },
+  "auth": {
+    "enter_phone": "Enter your mobile number",
+    "otp_sent": "We sent a 6-digit code on WhatsApp.",
+    "enter_code": "Enter the code",
+    "verify_and_login": "Verify and Log In",
+    "send_code": "Send Code"
+  },
+  "errors": {
+    "auth_required": "Please log in to continue.",
+    "phone_not_verified": "Please verify your phone number first.",
+    "rate_limited": "Too many tries. Please wait a little and try again.",
+    "duplicate_request": "You already have an active request for this patient and hospital.",
+    "service_paused": "The service is paused for a short time. Please call the blood banks listed.",
+    "invalid_input": "Please check the details you entered.",
+    "not_found_or_forbidden": "We could not find this, or you do not have access.",
+    "code_wrong": "That code is not correct. Please check with the donor.",
+    "code_locked": "Too many wrong codes. Please try again in an hour.",
+    "donor_not_eligible": "You cannot donate right now. Thank you for wanting to help.",
+    "provider_unavailable": "We could not send messages right now. Our team has been alerted.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}
