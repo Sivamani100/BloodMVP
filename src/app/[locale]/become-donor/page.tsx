@@ -671,7 +671,7 @@ export default function BecomeDonorPage() {
                 {termsAgreed && <CheckCircle2 className="w-4 h-4 stroke-[3]" />}
               </div>
               <p className="text-xs text-gray-800 font-medium leading-relaxed">
-                I agree RaktKhoj can share my name, blood group, distance, and the contact method(s) I picked above - and{' '}
+                I agree BloodMVP can share my name, blood group, distance, and the contact method(s) I picked above - and{' '}
                 <span className="text-red-600 font-bold underline">Terms &amp; Conditions</span>
               </p>
             </button>

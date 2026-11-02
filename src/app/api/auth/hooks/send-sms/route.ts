@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   console.log(`[Send-SMS Hook] OTP requested for phone: ${redactPhone(phone)}`);
   console.log(`[Send-SMS Hook] [TEST-LOG] OTP Code: ${otp} for phone: ${phone}`);
 
-  const otpMessage = `Your RaktKhoj / BloodMVP login verification code is: ${otp}. Valid for 10 minutes. Do not share this code.`;
+  const otpMessage = `Your BloodMVP verification code is: ${otp}. Valid for 10 minutes. Do not share this code.`;
 
   // 2. Dual Dispatch: Cellular SMS via Twilio + WhatsApp Message
   // A. Twilio SMS: Reaches mobile phone directly via carrier cellular SMS
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     try {
       const textRes = await sendWhatsAppText({
         toE164: phone,
-        text: `🩸 *RaktKhoj Verification Code*\n\nYour 6-digit login code is: *${otp}*\n\nValid for 10 minutes. Do not share this code with anyone.`,
+        text: `🩸 *BloodMVP Verification Code*\n\nYour 6-digit login code is: *${otp}*\n\nValid for 10 minutes. Do not share this code with anyone.`,
       });
       if (textRes.ok) return textRes;
 
