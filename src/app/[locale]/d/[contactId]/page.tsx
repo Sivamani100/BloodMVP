@@ -69,61 +69,61 @@ export default function DonorContactViewPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-white pb-20 text-gray-900">
+    <div className="w-full min-h-screen bg-[#F2F2F7] pb-24 text-gray-900">
       <WizardHeader
         title="Donation Details"
         onBack={() => router.push('/donor')}
         showClose={false}
       />
 
-      <div className="max-w-md mx-auto px-5 pt-4 space-y-5">
-        {/* Confirmed Banner */}
-        <div className="p-6 rounded-3xl bg-[#ECFDF5] border border-emerald-200 text-center space-y-2">
-          <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
-            <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
+      <div className="max-w-md mx-auto px-4 pt-3 space-y-3.5">
+        {/* Confirmed Banner (Floating Squircle) */}
+        <div className="p-5 rounded-[22px] bg-[#34C759]/10 border border-[#34C759]/20 shadow-ios-floating text-center space-y-2">
+          <div className="w-12 h-12 rounded-full bg-[#34C759] text-white flex items-center justify-center mx-auto shadow-sm">
+            <CheckCircle2 className="w-7 h-7 stroke-[2.3]" />
           </div>
-          <h1 className="text-xl font-black text-emerald-950">
+          <h1 className="text-[20px] font-bold text-gray-950 tracking-tight">
             You are Confirmed to Donate
           </h1>
-          <p className="text-xs text-emerald-800 leading-relaxed max-w-xs mx-auto">
+          <p className="text-[13px] text-[#1C7430] leading-relaxed max-w-xs mx-auto font-medium">
             Thank you for stepping up! Please proceed to the hospital and present your official Donation Code.
           </p>
         </div>
 
-        {/* Donation Code Card */}
+        {/* Donation Code Card (Floating Squircle) */}
         {data.donation_code && (
-          <div className="p-6 rounded-3xl bg-[#FFF1F2] border-2 border-red-400 text-center space-y-2 shadow-xs">
-            <span className="text-[11px] font-bold text-red-600 uppercase tracking-widest">
+          <div className="p-5 rounded-[22px] bg-white border border-[#FF3B30]/30 shadow-ios-floating text-center space-y-2">
+            <span className="text-[11px] font-bold text-[#FF3B30] uppercase tracking-widest">
               Your Official Donation Code
             </span>
-            <div className="font-mono text-4xl sm:text-5xl font-black text-red-600 tracking-widest py-1">
+            <div className="font-mono text-4xl sm:text-5xl font-black text-[#FF3B30] tracking-widest py-1">
               {data.donation_code}
             </div>
-            <p className="text-xs text-gray-600">
+            <p className="text-[12px] text-[#8E8E93]">
               Show this 6-digit code to the patient&apos;s family or blood bank desk when you arrive.
             </p>
           </div>
         )}
 
-        {/* Hospital Details Card */}
-        <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 space-y-3">
+        {/* Hospital Details Card (Floating Squircle) */}
+        <div className="p-4 rounded-[22px] bg-white border border-black/[0.06] shadow-ios-floating space-y-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-red-600" />
-            <h2 className="font-bold text-sm text-gray-900">Hospital Location</h2>
+            <Building2 className="w-4 h-4 text-[#FF3B30]" />
+            <h2 className="font-semibold text-[15px] text-gray-950">Hospital Location</h2>
           </div>
 
           <div>
-            <h3 className="font-extrabold text-base text-gray-950">{data.hospital_name}</h3>
+            <h3 className="font-bold text-[17px] text-gray-950 tracking-tight">{data.hospital_name}</h3>
             {data.hospital_area && (
-              <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-gray-400" />
+              <p className="text-[13px] text-[#8E8E93] mt-0.5 flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-[#8E8E93]" />
                 <span>{data.hospital_area}</span>
               </p>
             )}
           </div>
 
           {data.ward_info && (
-            <div className="p-3 bg-white rounded-xl border border-gray-200 text-xs font-semibold text-gray-800">
+            <div className="p-3 bg-[#767680]/8 rounded-[12px] border border-black/[0.04] text-[13px] font-medium text-gray-800">
               Ward / Room: {data.ward_info}
             </div>
           )}
@@ -134,7 +134,7 @@ export default function DonorContactViewPage() {
                 href={`https://www.google.com/maps/dir/?api=1&destination=${data.hospital_lat},${data.hospital_lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-xs"
+                className="w-full py-3.5 bg-gray-950 hover:bg-black text-white text-[14px] font-semibold rounded-[12px] flex items-center justify-center gap-2 transition-colors shadow-sm ios-press"
               >
                 <Navigation className="w-4 h-4" />
                 <span>Open Directions in Google Maps</span>
@@ -143,17 +143,17 @@ export default function DonorContactViewPage() {
           )}
         </div>
 
-        {/* Family Contact Card */}
+        {/* Family Contact Card (Floating Squircle) */}
         {data.requester_phone && (
-          <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 flex items-center justify-between gap-3">
+          <div className="p-4 rounded-[22px] bg-white border border-black/[0.06] shadow-ios-floating flex items-center justify-between gap-3">
             <div>
-              <p className="font-extrabold text-sm text-gray-950">{data.requester_name}</p>
-              <p className="text-xs text-gray-500 capitalize">{data.relation || 'Patient Family'}</p>
+              <p className="font-bold text-[15px] text-gray-950">{data.requester_name}</p>
+              <p className="text-[12px] text-[#8E8E93] capitalize">{data.relation || 'Patient Family'}</p>
             </div>
 
             <a
               href={`tel:${data.requester_phone}`}
-              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+              className="py-2.5 px-4 bg-[#34C759] hover:bg-[#28A745] text-white text-[13px] font-semibold rounded-[12px] flex items-center gap-1.5 shadow-sm transition-colors ios-press"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Call Family</span>
@@ -161,9 +161,9 @@ export default function DonorContactViewPage() {
           </div>
         )}
 
-        {/* Safety Reminder */}
-        <div className="p-4 rounded-2xl bg-[#ECFDF5] border border-emerald-200 text-emerald-900 text-xs flex items-center gap-2.5">
-          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+        {/* Safety Reminder (Floating Capsule) */}
+        <div className="p-4 rounded-[20px] bg-white border border-black/[0.06] shadow-ios-floating text-gray-700 text-[12px] flex items-center gap-2.5">
+          <ShieldCheck className="w-5 h-5 text-[#34C759] shrink-0" />
           <span>Blood donation is 100% voluntary. The medical officer performs the final pre-donation test.</span>
         </div>
       </div>

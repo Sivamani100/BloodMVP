@@ -133,8 +133,8 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 border-b border-gray-200 text-xs font-bold">
+      {/* Tabs (iOS Segmented Control) */}
+      <div className="flex gap-1.5 p-1 bg-[#767680]/10 rounded-[16px] overflow-x-auto text-[13px] font-semibold no-scrollbar">
         {[
           { id: 'live', label: 'Live Requests', icon: Activity, count: requests.filter((r) => r.status === 'searching').length },
           { id: 'needs_human', label: 'Needs Human', icon: AlertTriangle, count: abuseReports.length },
@@ -147,17 +147,17 @@ export default function AdminDashboardPage() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id as any)}
-            className={`px-4 py-2.5 rounded-xl flex items-center gap-2 whitespace-nowrap transition-colors ${
+            className={`px-3.5 py-2 rounded-[12px] flex items-center gap-2 whitespace-nowrap transition-all duration-150 ios-press-subtle ${
               tab === t.id
-                ? 'bg-gray-900 text-white shadow-xs'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-white text-gray-950 shadow-sm'
+                : 'text-[#8E8E93] hover:text-gray-900'
             }`}
           >
             <t.icon className="w-4 h-4" />
             <span>{t.label}</span>
             {t.count !== undefined && t.count > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                tab === t.id ? 'bg-white text-gray-900' : 'bg-gray-200 text-gray-800'
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                tab === t.id ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-[#767680]/15 text-[#8E8E93]'
               }`}>
                 {t.count}
               </span>
@@ -168,7 +168,7 @@ export default function AdminDashboardPage() {
 
       {/* Tab 1: Live Requests */}
       {tab === 'live' && (
-        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs">
+        <div className="bg-white rounded-[22px] border border-black/[0.06] shadow-ios-floating overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-bold uppercase tracking-wider">
@@ -233,18 +233,18 @@ export default function AdminDashboardPage() {
           <p className="text-xs text-gray-500">
             Reports requiring manual intervention: wrong numbers, abuse reports, or exhausted searches.
           </p>
-          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs divide-y divide-gray-100">
+          <div className="bg-white rounded-[22px] border border-black/[0.06] shadow-ios-floating overflow-hidden divide-y divide-black/[0.05]">
             {abuseReports.map((rep) => (
               <div key={rep.id} className="p-4 flex items-center justify-between text-xs">
                 <div>
-                  <span className="font-bold text-red-600 uppercase mr-2">{rep.target_type}</span>
+                  <span className="font-bold text-[#FF3B30] uppercase mr-2">{rep.target_type}</span>
                   <span className="font-medium text-gray-900">{rep.reason}</span>
                 </div>
-                <span className="text-gray-400">{new Date(rep.created_at).toLocaleDateString()}</span>
+                <span className="text-[#8E8E93]">{new Date(rep.created_at).toLocaleDateString()}</span>
               </div>
             ))}
             {abuseReports.length === 0 && (
-              <div className="p-8 text-center text-gray-400 text-xs">No pending human alerts. Queue is clear!</div>
+              <div className="p-8 text-center text-[#8E8E93] text-xs">No pending human alerts. Queue is clear!</div>
             )}
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function AdminDashboardPage() {
 
       {/* Tab 3: Donors */}
       {tab === 'donors' && (
-        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs">
+        <div className="bg-white rounded-[22px] border border-black/[0.06] shadow-ios-floating overflow-hidden">
           <table className="w-full text-left text-xs">
             <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-bold uppercase tracking-wider">
               <tr>
@@ -290,12 +290,12 @@ export default function AdminDashboardPage() {
           <div className="flex justify-between items-center">
             <h2 className="text-sm font-bold text-gray-900">Registered Blood Banks ({banks.length})</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {banks.map((b) => (
-              <div key={b.id} className="p-4 bg-white rounded-2xl border border-gray-200 shadow-xs text-xs space-y-1">
-                <div className="font-extrabold text-sm text-gray-900">{b.name}</div>
+              <div key={b.id} className="p-4 bg-white rounded-[22px] border border-black/[0.06] shadow-ios-floating text-xs space-y-1">
+                <div className="font-bold text-[15px] text-gray-950">{b.name}</div>
                 <div className="text-gray-500">{b.city}, {b.state}</div>
-                <div className="text-gray-400">Trust Score: {b.trust_score} / 100</div>
+                <div className="text-[#8E8E93] text-[11px] font-medium">Trust Score: {b.trust_score} / 100</div>
               </div>
             ))}
           </div>
@@ -304,9 +304,9 @@ export default function AdminDashboardPage() {
 
       {/* Tab 5: Settings */}
       {tab === 'settings' && (
-        <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4 text-xs">
+        <div className="bg-white p-5 rounded-[22px] border border-black/[0.06] shadow-ios-floating space-y-4 text-xs">
           <h2 className="font-bold text-base text-gray-900">System Configuration</h2>
-          <div className="space-y-3 divide-y divide-gray-100">
+          <div className="space-y-3 divide-y divide-black/[0.05]">
             <div className="pt-2 flex items-center justify-between">
               <div>
                 <p className="font-bold text-gray-900">WhatsApp Messaging</p>
@@ -335,7 +335,7 @@ export default function AdminDashboardPage() {
 
       {/* Tab 6: Audit Log */}
       {tab === 'audit' && (
-        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs">
+        <div className="bg-white rounded-[22px] border border-black/[0.06] shadow-ios-floating overflow-hidden">
           <table className="w-full text-left text-xs">
             <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-bold uppercase tracking-wider">
               <tr>

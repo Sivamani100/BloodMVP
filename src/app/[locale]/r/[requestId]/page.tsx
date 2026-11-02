@@ -23,6 +23,7 @@ import {
   Clock,
   Eye,
   EyeOff,
+  Check,
 } from 'lucide-react';
 
 export default function LiveRequestPage() {
@@ -101,28 +102,34 @@ export default function LiveRequestPage() {
         setPhoneMap((prev) => ({ ...prev, [contactId]: data.phone }));
         window.location.href = `tel:${data.phone}`;
       } else {
-        alert(data.message || 'Cannot reveal phone number. The donor will call you directly.');
+        alert(data.error || 'Could not reveal donor phone number');
       }
-    } catch (err) {
-      console.error('Reveal phone error:', err);
+    } catch (err: any) {
+      alert(err.message || 'Call error');
     } finally {
       setRevealingPhone(null);
     }
   }
 
   function handleWhatsApp(donor: any) {
-    const text = encodeURIComponent(
-      `Hello ${donor.first_name}, thank you for accepting my urgent blood request for patient ${
-        request?.patient_first_name || ''
-      } at ${request?.hospital_name || 'the hospital'}. Could you please let us know your ETA?`
-    );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    const phone = phoneMap[donor.contact_id];
+    if (phone) {
+      const cleanPhone = phone.replace(/\D/g, '');
+      const text = encodeURIComponent(
+        `Hello ${donor.first_name || 'Donor'}, thank you for agreeing to donate blood on RaktKhoj! We are at ${
+          request?.hospital_name || 'hospital'
+        }.`
+      );
+      window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+    } else {
+      handleCallDonor(donor.contact_id);
+    }
   }
 
   async function handleConfirmDonation(contactId: string) {
-    const code = confirmCodeInput[contactId];
-    if (!code || code.length !== 6) {
-      alert('Please enter the 6-digit Donation Code given by the donor.');
+    const code = (confirmCodeInput[contactId] || '').trim();
+    if (code.length !== 6) {
+      alert('Please enter the 6-digit donation code provided by the donor.');
       return;
     }
 
@@ -135,112 +142,166 @@ export default function LiveRequestPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert('Donation confirmed successfully! Thank you for saving lives.');
+        setToastNotification('Donation confirmed successfully!');
+        setTimeout(() => setToastNotification(null), 4000);
+        // Refresh progress immediately
+        const progRes = await fetch(`/api/requests/${requestId}/progress`);
+        if (progRes.ok) {
+          const progData = await progRes.json();
+          if (progData.request) setRequest(progData.request);
+          if (progData.donorCards) setDonorCards(progData.donorCards);
+          if (progData.allContacts) setAllContacts(progData.allContacts);
+        }
       } else {
-        alert(data.error === 'code_wrong' ? 'Wrong Donation Code. Please check with the donor.' : 'Error confirming code.');
+        alert(data.error || 'Failed to confirm donation with this code.');
       }
-    } catch (err) {
-      console.error('Confirm donation error:', err);
+    } catch (err: any) {
+      alert(err.message || 'Confirmation error');
     } finally {
       setConfirmingContact(null);
     }
   }
 
-  async function handleCancelOrClose(reason: string) {
+  async function handleCloseRequest(reason: string) {
     try {
-      await fetch(`/api/requests/${requestId}/cancel`, {
+      const res = await fetch(`/api/requests/${requestId}/cancel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason }),
       });
-      setShowCloseDrawer(false);
-      router.push('/');
-    } catch (err) {
-      console.error('Cancel request error:', err);
+      if (res.ok) {
+        setShowCloseDrawer(false);
+        router.push('/');
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to cancel request');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Cancellation error');
     }
   }
 
-  async function handleExpandSearch() {
-    try {
-      await fetch(`/api/requests/${requestId}/decision`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ continue: true }),
-      });
-      setShowCloseDrawer(false);
-      alert('Search radius expanded to notify more donors!');
-    } catch (err) {
-      console.error('Expand search error:', err);
-    }
-  }
-
-  if (loading || !request) {
+  if (loading) {
     return (
-      <div className="w-full min-h-screen bg-white flex flex-col items-center justify-center p-6 space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
-        <p className="text-sm font-semibold text-gray-700">Connecting to live matching engine...</p>
+      <div className="w-full min-h-screen bg-[#F2F2F7] flex flex-col items-center justify-center p-6 space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-[#FF3B30]" strokeWidth={2.2} />
+        <p className="text-[15px] font-medium text-[#8E8E93]">Connecting to live radar...</p>
       </div>
     );
   }
 
-  const acceptedCount = donorCards.length || request.accepted_count || 0;
+  if (!request) {
+    return (
+      <div className="w-full min-h-screen bg-[#F2F2F7] flex flex-col justify-center px-4 py-8">
+        <div className="max-w-md w-full mx-auto text-center space-y-3">
+          <h1 className="text-[24px] font-bold text-gray-950">Request Not Found</h1>
+          <p className="text-[15px] text-[#8E8E93]">
+            This blood emergency request was closed or does not exist.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push('/')}
+            className="h-11 px-5 rounded-[12px] bg-[#007AFF] text-white font-semibold text-[15px] shadow-sm ios-press"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const targetUnits = request.units_needed || 2;
-  const isComplete = acceptedCount >= targetUnits;
+  const acceptedCount = request.accepted_count || 0;
+  const ringRadius = request.current_ring_km || 1;
+  const waveNumber = request.wave_no || 1;
+
+  // Wave 10-minute expiry calculation
+  let remainingSec = 0;
+  if (request.wave_expires_at) {
+    const expireMs = new Date(request.wave_expires_at).getTime();
+    remainingSec = Math.max(0, Math.floor((expireMs - currentTime) / 1000));
+  }
+  const timerMinutes = Math.floor(remainingSec / 60);
+  const timerSeconds = remainingSec % 60;
+  const timerDisplay = `${timerMinutes}:${timerSeconds < 10 ? '0' : ''}${timerSeconds}`;
 
   return (
-    <div className="w-full min-h-screen bg-white pb-24 text-gray-900">
-      {/* Top Wizard Header */}
+    <div className="w-full min-h-screen bg-[#F2F2F7] pb-32 text-gray-950 font-sans">
       <WizardHeader
-        title="Request sent"
+        title={`${request.blood_group} Live Radar`}
         onBack={() => router.push('/')}
+        showClose={true}
         onClose={() => setShowCloseDrawer(true)}
       />
 
-      {/* Top Map View */}
-      <div className="relative w-full h-52 bg-slate-100 border-b border-gray-100 overflow-hidden">
-        {/* Map Grid / stylised layout */}
-        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]">
-          <svg className="w-full h-full opacity-40" viewBox="0 0 400 220">
-            <path d="M-20 40 Q 120 70 240 30 T 420 100" stroke="#94A3B8" strokeWidth="4" fill="none" />
-            <path d="M40 -10 Q 110 110 190 160 T 350 220" stroke="#94A3B8" strokeWidth="3" fill="none" />
-            <path d="M160 60 Q 230 130 310 90" stroke="#94A3B8" strokeWidth="5" fill="none" />
-          </svg>
-        </div>
-
-        {/* Center Hospital Pin & Donor Pins */}
+      {/* Live Concentric Radar Map Visual */}
+      <div className="relative w-full h-56 bg-slate-900 overflow-hidden select-none">
+        {/* Radar Rings Grid */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative w-56 h-32">
-            {/* Hospital Pin */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-red-100 border-2 border-red-500 flex items-center justify-center">
-                <span className="w-3.5 h-3.5 rounded-full bg-red-600" />
+          <div className="relative w-64 h-64 flex items-center justify-center">
+            {/* Outermost Ring */}
+            <div className="absolute w-56 h-56 rounded-full border border-emerald-500/20" />
+            {/* Wave 2 Ring */}
+            <div className="absolute w-40 h-40 rounded-full border border-emerald-500/30" />
+            {/* Immediate Ring */}
+            <div className="absolute w-24 h-24 rounded-full border border-emerald-500/40 animate-ping duration-1000" />
+            <div className="absolute w-24 h-24 rounded-full border border-emerald-500/50" />
+
+            {/* Crosshair guidelines */}
+            <div className="absolute w-full h-[1px] bg-emerald-500/10" />
+            <div className="absolute h-full w-[1px] bg-emerald-500/10" />
+
+            {/* Center Hospital Pin */}
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-9 h-9 rounded-full bg-[#FF3B30] text-white flex items-center justify-center shadow-lg border-2 border-white">
+                <MapPin className="w-4 h-4 fill-white" strokeWidth={2} />
               </div>
-              <span className="text-[10px] font-bold text-gray-700 bg-white/90 px-1.5 py-0.5 rounded-md shadow-xs mt-1">
-                {request.hospital_area || 'Hospital'}
+              <span className="text-[10px] font-bold text-white bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded-full mt-1 border border-white/20 truncate max-w-[140px]">
+                {request.hospital_name || 'Hospital'}
               </span>
             </div>
 
-            {/* Donor Accepted Pin */}
-            {acceptedCount > 0 && (
-              <div className="absolute top-4 right-8 flex flex-col items-center animate-bounce">
-                <div className="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white shadow-md flex items-center justify-center text-white text-[9px] font-black">
-                  ✓
+            {/* Candidate Donors Dots */}
+            {allContacts.slice(0, 5).map((c, i) => {
+              const offsets = [
+                { top: '24%', left: '22%' },
+                { top: '30%', right: '20%' },
+                { bottom: '26%', left: '30%' },
+                { bottom: '22%', right: '26%' },
+                { top: '15%', left: '50%' },
+              ];
+              const pos = offsets[i % offsets.length];
+              const isAccepted = c.status === 'accepted';
+              return (
+                <div
+                  key={c.id || i}
+                  style={pos as any}
+                  className="absolute z-10 flex flex-col items-center"
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 border-white shadow-md transition-all ${
+                      isAccepted
+                        ? 'bg-[#34C759] ring-2 ring-[#34C759]/40 scale-125'
+                        : 'bg-[#007AFF] animate-pulse'
+                    }`}
+                  />
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
 
-        {/* Floating Notification or Status Pill on Map */}
+        {/* Floating Top Status Capsule on Map */}
         <div className="absolute top-3 left-1/2 -translate-x-1/2">
           {toastNotification ? (
-            <div className="bg-gray-900/90 text-white backdrop-blur-xs rounded-full px-4 py-2 shadow-lg flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            <div className="bg-black/85 text-white backdrop-blur-md rounded-full px-3.5 py-1.5 shadow-md flex items-center gap-2 text-[12px] font-semibold animate-in fade-in">
+              <span className="w-2 h-2 rounded-full bg-[#34C759] animate-ping" />
               <span>{toastNotification}</span>
             </div>
           ) : (
-            <div className="bg-white/95 backdrop-blur-xs rounded-full px-4 py-1.5 shadow-md border border-gray-200 text-xs font-bold text-gray-900">
-              {acceptedCount} of {targetUnits} accepted
+            <div className="ios-glass rounded-full px-3.5 py-1 shadow-sm border border-black/[0.08] text-[12px] font-semibold text-gray-900 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#34C759] animate-pulse" />
+              <span>{acceptedCount} of {targetUnits} Donors Confirmed</span>
             </div>
           )}
         </div>
@@ -248,448 +309,273 @@ export default function LiveRequestPage() {
         {/* Map info icon */}
         <button
           type="button"
-          onClick={() => alert(`Searching registered donors within Rajahmundry. Live updates enabled.`)}
-          className="absolute bottom-3 right-4 w-7 h-7 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700"
+          onClick={() => alert(`Searching registered ${request.blood_group} donors near hospital.`)}
+          className="absolute bottom-3 right-4 w-7 h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-700"
+          aria-label="Radar Info"
         >
           <Info className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-md mx-auto px-5 pt-5 space-y-4">
-        {/* Section Heading with Counter Badge */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-gray-950 tracking-tight">
-              Donors who&apos;ve accepted
-            </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {request.blood_group} and compatible types
+      <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
+        {/* Wave Banner Callout */}
+        <div className="p-3.5 rounded-[16px] bg-white border border-black/[0.06] shadow-2xs flex items-center justify-between">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[14px] font-bold text-gray-900">
+                Wave {waveNumber} · {ringRadius} km Radius
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-pulse" />
+            </div>
+            <p className="text-[12px] text-[#8E8E93]">
+              Automated calls &amp; WhatsApp alerts active
             </p>
           </div>
-          <div className="px-3 py-1 bg-gray-100 rounded-full font-bold text-xs text-gray-700">
-            {acceptedCount}/{targetUnits}
-          </div>
+          {remainingSec > 0 && (
+            <div className="flex items-center gap-1 text-[13px] font-mono font-bold text-[#FF3B30] bg-[#FF3B30]/10 px-2.5 py-1 rounded-full">
+              <Clock className="w-3.5 h-3.5" strokeWidth={2.2} />
+              <span>{timerDisplay}</span>
+            </div>
+          )}
         </div>
 
-        {/* Donors Cards List */}
-        <div className="space-y-3 pt-1">
-          {donorCards.map((donor, idx) => (
-            <div
-              key={donor.contact_id || idx}
-              className="p-4 rounded-3xl bg-white border border-gray-100 shadow-sm space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {/* Avatar with Verified Check Overlay */}
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-base font-extrabold text-gray-800">
-                      {donor.first_name ? donor.first_name.slice(0, 2).toUpperCase() : 'DN'}
-                    </div>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-[9px] font-black">
-                      ✓
+        {/* Donors who have accepted Section */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-[17px] font-bold text-gray-950 tracking-tight">
+              Confirmed Donors ({donorCards.length})
+            </h2>
+            <span className="text-[12px] text-[#8E8E93] font-medium">
+              Target: {targetUnits} units
+            </span>
+          </div>
+
+          {donorCards.length === 0 ? (
+            <div className="p-5 rounded-[16px] bg-white border border-black/[0.06] shadow-2xs text-center space-y-1.5">
+              <p className="text-[15px] font-semibold text-gray-900">Awaiting donor response...</p>
+              <p className="text-[12px] text-[#8E8E93]">
+                Candidate phones in Wave {waveNumber} are being contacted right now.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {donorCards.map((donor, idx) => (
+                <div
+                  key={donor.contact_id || idx}
+                  className="p-4 rounded-[16px] bg-white border border-black/[0.06] shadow-2xs space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-11 h-11 rounded-full bg-[#34C759]/15 flex items-center justify-center text-[15px] font-bold text-[#34C759]">
+                          {donor.first_name ? donor.first_name.slice(0, 2).toUpperCase() : 'DN'}
+                        </div>
+                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#34C759] border-2 border-white flex items-center justify-center text-white text-[9px] font-bold">
+                          ✓
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="font-semibold text-[16px] text-gray-950">
+                            {donor.first_name}
+                          </h3>
+                          <span className="px-2 py-0.5 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] text-[11px] font-bold">
+                            {donor.blood_group || request.blood_group}
+                          </span>
+                        </div>
+                        <p className="text-[12px] text-[#8E8E93]">
+                          {donor.distance_band || 'Nearby'} · Verified Donor
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-extrabold text-base text-gray-950">
-                        {donor.first_name}
-                      </h3>
-                      <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[11px] font-bold">
-                        {donor.blood_group || request.blood_group}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {donor.distance_band || '0.5 km away'} · Male, 30
-                    </p>
+                  {/* Actions Row */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleCallDonor(donor.contact_id)}
+                      disabled={revealingPhone === donor.contact_id}
+                      className="grow h-10 rounded-[10px] bg-[#34C759] text-white font-semibold text-[14px] flex items-center justify-center gap-1.5 shadow-xs ios-press select-none"
+                    >
+                      {revealingPhone === donor.contact_id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Phone className="w-4 h-4" strokeWidth={2} />
+                          <span>{phoneMap[donor.contact_id] ? 'Call Now' : 'Call Donor'}</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleWhatsApp(donor)}
+                      className="grow h-10 rounded-[10px] bg-[#007AFF] text-white font-semibold text-[14px] flex items-center justify-center gap-1.5 shadow-xs ios-press select-none"
+                    >
+                      <MessageCircle className="w-4 h-4" strokeWidth={2} />
+                      <span>WhatsApp</span>
+                    </button>
+                  </div>
+
+                  {/* Code Verification Row */}
+                  <div className="pt-2.5 border-t border-black/[0.05] flex items-center gap-2">
+                    <input
+                      type="text"
+                      maxLength={6}
+                      placeholder="Enter 6-digit Code"
+                      value={confirmCodeInput[donor.contact_id] || ''}
+                      onChange={(e) =>
+                        setConfirmCodeInput({ ...confirmCodeInput, [donor.contact_id]: e.target.value })
+                      }
+                      className="grow py-1.5 px-3 text-[13px] bg-[#767680]/[0.08] rounded-[8px] font-mono tracking-widest text-center focus:outline-hidden focus:ring-1 focus:ring-[#007AFF]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmDonation(donor.contact_id)}
+                      disabled={confirmingContact === donor.contact_id}
+                      className="h-8 px-3.5 bg-gray-950 text-white rounded-[8px] text-[12px] font-semibold ios-press select-none"
+                    >
+                      {confirmingContact === donor.contact_id ? 'Verifying...' : 'Verify'}
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Action Buttons Row: Share, Call, WhatsApp */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: 'Donor Accepted',
-                        text: `Donor ${donor.first_name} has accepted to donate ${request.blood_group} blood!`,
-                      });
-                    } else {
-                      alert('Donor information copied!');
-                    }
-                  }}
-                  className="w-11 h-11 rounded-2xl border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 shrink-0"
-                  aria-label="Share"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleCallDonor(donor.contact_id)}
-                  disabled={revealingPhone === donor.contact_id}
-                  className="grow h-11 rounded-2xl border border-gray-200 bg-white font-bold text-sm text-gray-900 flex items-center justify-center gap-2 hover:bg-gray-50 active:scale-[0.99] transition-all"
-                >
-                  {revealingPhone === donor.contact_id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Phone className="w-4 h-4 text-gray-700" />
-                      <span>{phoneMap[donor.contact_id] ? 'Call Now' : 'Call'}</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleWhatsApp(donor)}
-                  className="grow h-11 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.99] shadow-sm transition-all"
-                >
-                  <MessageCircle className="w-4 h-4 fill-white" />
-                  <span>WhatsApp</span>
-                </button>
-              </div>
-
-              {/* Donation Code Verification Field (For when donor arrives) */}
-              <div className="pt-2 border-t border-gray-100 flex items-center gap-2">
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="Enter 6-digit Donation Code"
-                  value={confirmCodeInput[donor.contact_id] || ''}
-                  onChange={(e) =>
-                    setConfirmCodeInput({ ...confirmCodeInput, [donor.contact_id]: e.target.value })
-                  }
-                  className="grow py-2 px-3 text-xs bg-gray-50 border border-gray-200 rounded-xl font-mono tracking-widest text-center focus:outline-hidden focus:ring-1 focus:ring-red-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleConfirmDonation(donor.contact_id)}
-                  disabled={confirmingContact === donor.contact_id}
-                  className="py-2 px-3 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-black transition-colors shrink-0"
-                >
-                  {confirmingContact === donor.contact_id ? 'Confirming...' : 'Verify'}
-                </button>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
 
-          {/* Candidate Donors Being Contacted Now (Live Outreach Feed) */}
-          {(() => {
-            // Filter out contacts dismissed by user
-            const nonDismissedContacts = allContacts.filter(
-              (c) => !dismissedContactIds.includes(c.contact_id)
-            );
+        {/* Live Outreach Queue List */}
+        <div className="space-y-1.5 pt-2">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-[14px] font-semibold text-[#8E8E93] uppercase tracking-wider">
+              Live Outreach Feed
+            </h3>
+            <button
+              type="button"
+              onClick={() => setHideUnavailable(!hideUnavailable)}
+              className="text-[12px] text-[#007AFF] font-medium"
+            >
+              {hideUnavailable ? 'Show All' : 'Hide Passed'}
+            </button>
+          </div>
 
-            // Count unavailable/declined contacts
-            const declinedContacts = nonDismissedContacts.filter((c) =>
-              ['declined', 'not_eligible', 'cancelled'].includes(c.status)
-            );
-            const declinedCount = declinedContacts.length;
+          <div className="bg-white rounded-[16px] border border-black/[0.06] shadow-2xs divide-y divide-black/[0.06] overflow-hidden">
+            {allContacts
+              .filter((c) => !hideUnavailable || c.status !== 'no_answer')
+              .slice(0, 6)
+              .map((contact, i) => {
+                const isCalling = contact.call_status === 'dialing' || contact.call_status === 'ringing';
+                const isAccepted = contact.status === 'accepted';
+                const isNoAnswer = contact.status === 'no_answer' || contact.status === 'declined';
 
-            // Filter based on hideUnavailable toggle
-            const visibleContacts = nonDismissedContacts.filter((c) => {
-              if (hideUnavailable && ['declined', 'not_eligible', 'cancelled'].includes(c.status)) {
-                return false;
-              }
-              return true;
-            });
+                return (
+                  <div key={contact.id || i} className="p-3 flex items-center justify-between text-[14px]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-[#767680]/10 flex items-center justify-center text-gray-700">
+                        {isAccepted ? (
+                          <Check className="w-3.5 h-3.5 text-[#34C759]" strokeWidth={3} />
+                        ) : isCalling ? (
+                          <PhoneCall className="w-3.5 h-3.5 text-[#007AFF] animate-pulse" strokeWidth={2} />
+                        ) : isNoAnswer ? (
+                          <PhoneMissed className="w-3.5 h-3.5 text-[#8E8E93]" strokeWidth={2} />
+                        ) : (
+                          <MessageCircle className="w-3.5 h-3.5 text-[#34C759]" strokeWidth={2} />
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900 block leading-tight">
+                          Donor #{i + 1}
+                        </span>
+                        <span className="text-[11px] text-[#8E8E93]">
+                          {contact.ring_km ? `${contact.ring_km} km away` : 'Matching distance'}
+                        </span>
+                      </div>
+                    </div>
 
-            // Calculate 10-minute wave timer from the earliest created contact
-            const activeContacts = nonDismissedContacts.filter(
-              (c) => !['accepted', 'declined', 'not_eligible', 'cancelled'].includes(c.status)
-            );
-            const waveEarliestCreated =
-              activeContacts.length > 0 && activeContacts[0].created_at
-                ? new Date(activeContacts[0].created_at).getTime()
-                : allContacts.length > 0 && allContacts[0].created_at
-                ? new Date(allContacts[0].created_at).getTime()
-                : null;
-
-            const elapsedWaveSec = waveEarliestCreated
-              ? Math.max(0, Math.floor((currentTime - waveEarliestCreated) / 1000))
-              : 0;
-            const TEN_MIN_SEC = 600;
-            const remainingWaveSec = Math.max(0, TEN_MIN_SEC - elapsedWaveSec);
-            const waveMins = Math.floor(remainingWaveSec / 60);
-            const waveSecs = remainingWaveSec % 60;
-
-            return (
-              <div className="pt-2 space-y-2.5">
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-gray-500">
-                      Nearby Donors Contacted ({visibleContacts.length})
-                    </h3>
-                    {remainingWaveSec > 0 ? (
-                      <span className="flex items-center gap-1 text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                        <Clock className="w-3 h-3 text-slate-500" />
-                        {waveMins}:{waveSecs < 10 ? '0' : ''}{waveSecs} left
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                        <Clock className="w-3 h-3 text-amber-600" />
-                        10m window ended
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {declinedCount > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setHideUnavailable(!hideUnavailable)}
-                        className="text-[10px] font-bold text-gray-600 hover:text-gray-900 flex items-center gap-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 px-2 py-0.5 rounded-full transition-colors"
-                      >
-                        {hideUnavailable ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                        {hideUnavailable ? `Show unable (${declinedCount})` : `Hide unable`}
-                      </button>
-                    )}
-                    <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full animate-pulse">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
-                      Live Dispatch
+                    <span
+                      className={`text-[12px] font-semibold px-2 py-0.5 rounded-full ${
+                        isAccepted
+                          ? 'bg-[#34C759]/15 text-[#34C759]'
+                          : isCalling
+                          ? 'bg-[#007AFF]/15 text-[#007AFF]'
+                          : isNoAnswer
+                          ? 'bg-gray-100 text-[#8E8E93]'
+                          : 'bg-amber-500/15 text-amber-700'
+                      }`}
+                    >
+                      {isAccepted
+                        ? 'Accepted'
+                        : isCalling
+                        ? 'Dialing...'
+                        : isNoAnswer
+                        ? 'Passed'
+                        : 'Alert Sent'}
                     </span>
                   </div>
-                </div>
-
-                {visibleContacts.length > 0 ? (
-                  <div className="space-y-2">
-                    {visibleContacts.map((contact, idx) => {
-                      const isAccepted = contact.status === 'accepted';
-                      const isDeclined = ['declined', 'not_eligible', 'cancelled'].includes(contact.status);
-                      const isTimedOut =
-                        contact.created_at &&
-                        currentTime - new Date(contact.created_at).getTime() > 10 * 60 * 1000 &&
-                        !isAccepted;
-                      const isNoAnswer =
-                        contact.status === 'no_answer' ||
-                        ['no_answer', 'busy'].includes(contact.call_status) ||
-                        contact.call_status === 'failed';
-                      const isCallEnded = contact.call_status === 'completed' && !isAccepted && !isDeclined;
-                      const isOnCall = contact.call_status === 'answered' && !isAccepted && !isDeclined;
-                      const isCalling = ['dialing', 'ringing'].includes(contact.call_status);
-                      const isWaSent = ['sent', 'delivered', 'read'].includes(contact.wa_status);
-                      const isWaRead = contact.wa_status === 'read';
-
-                      return (
-                        <div
-                          key={contact.contact_id || idx}
-                          className={`p-3.5 rounded-2xl border transition-all ${
-                            isAccepted
-                              ? 'bg-emerald-50/60 border-emerald-200 shadow-2xs'
-                              : isDeclined
-                              ? 'bg-rose-50/20 border-rose-100 opacity-80 hover:opacity-100'
-                              : isCalling
-                              ? 'bg-blue-50/50 border-blue-200 shadow-xs'
-                              : isOnCall
-                              ? 'bg-indigo-50/40 border-indigo-200'
-                              : isCallEnded
-                              ? 'bg-slate-50/60 border-slate-200'
-                              : isNoAnswer
-                              ? 'bg-amber-50/20 border-amber-100'
-                              : 'bg-white border-gray-100 shadow-2xs'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div
-                                className={`w-10 h-10 rounded-full border flex items-center justify-center font-black text-xs shrink-0 ${
-                                  isAccepted
-                                    ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
-                                    : isDeclined
-                                    ? 'bg-rose-50 border-rose-200 text-rose-700'
-                                    : 'bg-gray-100 border-gray-200 text-gray-800'
-                                }`}
-                              >
-                                {contact.first_name?.[0] || 'D'}
-                              </div>
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-extrabold text-sm text-gray-950 truncate">
-                                    {contact.first_name}
-                                  </h4>
-                                  <span className="px-1.5 py-0.5 text-[10px] font-black rounded-md bg-red-100 text-red-700 shrink-0">
-                                    {contact.blood_group}
-                                  </span>
-                                </div>
-                                <p className="text-[11px] text-gray-500 font-medium truncate">
-                                  {contact.distance_km ? `${contact.distance_km} km away` : 'Nearby in Rajahmundry'}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Real-time Status Badge & Actions */}
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              {/* Primary Status Badge */}
-                              {isAccepted ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-100/80 border border-emerald-200 px-2.5 py-1 rounded-full">
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                  Accepted
-                                </span>
-                              ) : isDeclined ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full">
-                                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                                  Can&apos;t Donate
-                                </span>
-                              ) : isTimedOut ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
-                                  <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                  Timed Out (10m)
-                                </span>
-                              ) : isCalling ? (
-                                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full animate-pulse">
-                                  <Phone className="w-3.5 h-3.5 animate-bounce text-blue-600" />
-                                  Calling...
-                                </span>
-                              ) : isOnCall ? (
-                                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full animate-pulse">
-                                  <PhoneForwarded className="w-3.5 h-3.5 text-indigo-600" />
-                                  On Call...
-                                </span>
-                              ) : isCallEnded ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
-                                  <PhoneCall className="w-3.5 h-3.5 text-slate-500" />
-                                  Call Ended
-                                </span>
-                              ) : isNoAnswer ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
-                                  <PhoneOff className="w-3.5 h-3.5 text-amber-600" />
-                                  No Answer
-                                </span>
-                              ) : isWaSent ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/60 border border-emerald-200/80 px-2.5 py-1 rounded-full">
-                                  <MessageCircle className="w-3 h-3 text-emerald-600" />
-                                  {isWaRead ? 'WhatsApp Seen' : 'WhatsApp Sent'}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                                  <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
-                                  Contacting...
-                                </span>
-                              )}
-
-                              {/* Dismiss / Remove button for unavailable donors */}
-                              {isDeclined && (
-                                <button
-                                  type="button"
-                                  onClick={() => setDismissedContactIds((prev) => [...prev, contact.contact_id])}
-                                  className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
-                                  title="Remove from list"
-                                  aria-label="Remove from list"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* WhatsApp Delivery indicator if call is also ongoing */}
-                          {!isAccepted && !isDeclined && isWaSent && (isCalling || isOnCall || isCallEnded || isNoAnswer) && (
-                            <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
-                              <span className="text-gray-500 flex items-center gap-1">
-                                <MessageCircle className="w-3 h-3 text-emerald-600" />
-                                WhatsApp Alert:
-                              </span>
-                              <span className="font-semibold text-emerald-700">
-                                {isWaRead ? 'Seen by donor' : 'Delivered to phone'}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center bg-[#F9FAFB] rounded-3xl border border-dashed border-gray-200 space-y-3">
-                    <Loader2 className="w-6 h-6 animate-spin text-red-600 mx-auto" />
-                    <h3 className="font-bold text-gray-900 text-sm">
-                      Ringing nearby donors now...
-                    </h3>
-                    <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
-                      Automated phone calls and WhatsApp alerts are being sent to registered donors in widening distance rings.
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-        </div>
-
-        {/* Pulsing Status: Waiting for more, please be patient */}
-        <div className="py-6 text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-gray-600">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
-              <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
-              <span className="w-2 h-2 rounded-full bg-rose-500" />
-            </span>
-            <span>Waiting for more, please be patient</span>
+                );
+              })}
           </div>
         </div>
 
-        {/* Footer trigger to open bottom sheet */}
-        <div className="text-center pt-2">
+        {/* Cancel / Close Request Button */}
+        <div className="pt-2 text-center">
           <button
             type="button"
             onClick={() => setShowCloseDrawer(true)}
-            className="text-xs font-semibold text-gray-500 hover:text-gray-800 underline decoration-gray-300"
+            className="text-[13px] font-semibold text-[#FF3B30] hover:underline"
           >
-            Finished or need to expand search?
+            Cancel this emergency request
           </button>
         </div>
       </div>
 
-      {/* Bottom Sheet Drawer: Did you find a donor? */}
+      {/* iOS Modal Bottom Sheet for Cancellation */}
       {showCloseDrawer && (
-        <div className="fixed inset-0 z-50 flex items-end">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/30 backdrop-blur-xs animate-in fade-in"
             onClick={() => setShowCloseDrawer(false)}
           />
 
-          {/* Drawer Container */}
-          <div className="relative w-full max-w-md mx-auto bg-white rounded-t-[32px] p-6 pb-8 shadow-2xl z-50 animate-in slide-in-from-bottom duration-200 space-y-4">
-            {/* Grab Handle */}
-            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-2" />
+          <div className="relative w-full max-w-md mx-auto bg-white rounded-t-[28px] p-5 space-y-4 z-50 shadow-2xl animate-in slide-in-from-bottom duration-200">
+            {/* Sheet Handle */}
+            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto" />
 
             <div className="text-center space-y-1">
-              <h3 className="text-xl font-black text-gray-950">
-                Did you find a donor?
-              </h3>
-              <p className="text-xs text-gray-500">
-                If you found help, we shall close the request.
+              <h3 className="text-[18px] font-bold text-gray-950">Cancel Request</h3>
+              <p className="text-[13px] text-[#8E8E93]">
+                Why would you like to close this blood request?
               </p>
             </div>
 
-            <div className="space-y-2.5 pt-2">
-              <button
-                type="button"
-                onClick={() => handleCancelOrClose('got_donor')}
-                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all"
-              >
-                Found donor
-              </button>
-
-              <button
-                type="button"
-                onClick={handleExpandSearch}
-                className="w-full py-3 rounded-2xl font-semibold text-sm text-gray-700 hover:bg-gray-100 active:scale-[0.99] transition-all"
-              >
-                Expand search
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowCloseDrawer(false)}
-                className="w-full py-2 text-xs font-medium text-gray-400 hover:text-gray-600"
-              >
-                Keep waiting
-              </button>
+            <div className="space-y-2">
+              {[
+                { label: 'Blood arranged from donor / bank', reason: 'blood_found' },
+                { label: 'Patient discharged or stabilized', reason: 'patient_stabilized' },
+                { label: 'Testing / Demonstration completed', reason: 'test_demo' },
+                { label: 'Other reason', reason: 'other' },
+              ].map((item) => (
+                <button
+                  key={item.reason}
+                  type="button"
+                  onClick={() => handleCloseRequest(item.reason)}
+                  className="w-full text-left p-3.5 rounded-[12px] bg-[#F2F2F7] hover:bg-gray-200 text-[15px] font-semibold text-gray-900 transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowCloseDrawer(false)}
+              className="w-full h-11 rounded-[12px] bg-gray-100 text-gray-700 font-semibold text-[15px] ios-press"
+            >
+              Keep Searching
+            </button>
           </div>
         </div>
       )}

@@ -7,7 +7,7 @@ import { useRouter } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
 import { normalizePhone, isValidIndianMobile } from '@/server/security/allowlist';
 import { RaktKhojLogo } from '@/components/ui/RaktKhojLogo';
-import { KeyRound, Loader2, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { KeyRound, Loader2, ArrowRight, ShieldCheck, AlertCircle, ChevronLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
@@ -82,38 +82,57 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col justify-center px-4 py-8">
-      <div className="max-w-md w-full mx-auto space-y-6">
-        <div className="text-center space-y-3">
+    <div className="w-full min-h-screen bg-[#F2F2F7] flex flex-col justify-center px-4 py-8">
+      <div className="max-w-md w-full mx-auto space-y-5">
+        {/* iOS Back Button if in OTP step */}
+        {step === 'otp' && (
+          <button
+            type="button"
+            onClick={() => {
+              setStep('phone');
+              setOtp('');
+              setErrorMsg(null);
+            }}
+            className="-ml-1 inline-flex items-center gap-0.5 text-[#007AFF] hover:opacity-80 active:opacity-50 transition-all select-none"
+          >
+            <ChevronLeft className="w-5 h-5 -mr-1" strokeWidth={2.5} />
+            <span className="text-[17px] font-normal leading-none tracking-[-0.01em]">Change Number</span>
+          </button>
+        )}
+
+        {/* Header Icon & Title */}
+        <div className="text-center space-y-2 pt-2">
           <div className="flex justify-center">
-            <RaktKhojLogo className="w-14 h-14" />
+            <RaktKhojLogo className="w-16 h-16 rounded-[16px] shadow-sm" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">
-            {step === 'phone' ? 'Sign in to RaktKhoj' : 'Enter verification code'}
+          <h1 className="text-[28px] sm:text-[32px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
+            {step === 'phone' ? 'Sign in to RaktKhoj' : 'Verification Code'}
           </h1>
-          <p className="text-xs sm:text-sm text-gray-500 max-w-xs mx-auto">
+          <p className="text-[15px] text-[#8E8E93] max-w-xs mx-auto leading-snug">
             {step === 'phone'
-              ? 'Enter your mobile number to receive a secure login code via WhatsApp'
-              : 'Enter the 6-digit code sent to your WhatsApp'}
+              ? 'Enter your mobile number to receive a secure login code via WhatsApp & SMS'
+              : `Enter the 6-digit code sent to +91 ${phone.replace(/\D/g, '')}`}
           </p>
         </div>
 
         {errorMsg && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
-            <span>{errorMsg}</span>
+          <div className="p-3.5 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[14px] text-[13px] text-[#FF3B30] flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#FF3B30]" strokeWidth={2} />
+            <span className="font-medium leading-snug">{errorMsg}</span>
           </div>
         )}
 
-        <div className="bg-[#F9FAFB] p-6 rounded-3xl border border-gray-200/80 shadow-xs">
+        {/* Inset Grouped Container */}
+        <div className="bg-white p-5 rounded-[20px] border border-black/[0.06] shadow-ios-card">
           {step === 'phone' ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                <label className="block text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">
                   Mobile Number
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">
+                {/* iOS Settings Grouped Input Row */}
+                <div className="relative flex items-center bg-[#767680]/[0.08] rounded-[12px] px-3.5 py-3 border border-transparent focus-within:border-[#007AFF] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#007AFF]/15 transition-all">
+                  <span className="text-[17px] font-semibold text-[#8E8E93] mr-2 select-none">
                     +91
                   </span>
                   <input
@@ -123,7 +142,7 @@ export default function LoginPage() {
                     value={phone.replace(/^\+?91/, '')}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                     placeholder="98494 97911"
-                    className="w-full pl-14 pr-4 py-3.5 text-base bg-white border border-gray-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-red-500 font-bold tracking-wider text-gray-900"
+                    className="w-full bg-transparent text-[17px] font-semibold text-gray-900 focus:outline-hidden tracking-wide"
                   />
                 </div>
               </div>
@@ -131,14 +150,14 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || phone.replace(/\D/g, '').length < 10}
-                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm ios-press flex items-center justify-center gap-2 disabled:opacity-40 transition-all select-none"
               >
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" strokeWidth={2.2} />
                 ) : (
                   <>
                     <span>Send Verification Code</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" strokeWidth={2.2} />
                   </>
                 )}
               </button>
@@ -146,19 +165,19 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  6-Digit OTP
+                <label className="block text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 text-center">
+                  6-Digit OTP Code
                 </label>
-                <div className="relative">
-                  <KeyRound className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <div className="relative flex items-center justify-center bg-[#767680]/[0.08] rounded-[12px] px-3.5 py-3 border border-transparent focus-within:border-[#007AFF] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#007AFF]/15 transition-all">
                   <input
                     type="text"
                     required
                     maxLength={6}
+                    autoFocus
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="123456"
-                    className="w-full pl-11 pr-4 py-3.5 text-center text-2xl font-mono tracking-widest bg-white border border-gray-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-red-500 font-bold text-gray-900"
+                    placeholder="••••••"
+                    className="w-full text-center text-[28px] font-mono tracking-[0.4em] bg-transparent font-bold text-gray-900 focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -166,10 +185,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#34C759] text-white shadow-sm ios-press flex items-center justify-center gap-2 disabled:opacity-40 transition-all select-none"
               >
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" strokeWidth={2.2} />
                 ) : (
                   <span>Verify and Sign In</span>
                 )}
@@ -181,16 +200,16 @@ export default function LoginPage() {
                   setStep('phone');
                   setOtp('');
                 }}
-                className="w-full text-center text-xs text-gray-500 hover:text-gray-800 font-medium pt-1"
+                className="w-full text-center text-[13px] text-[#007AFF] hover:underline font-medium pt-1"
               >
                 Change mobile number
               </button>
             </form>
           )}
 
-          <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-center gap-1.5 text-xs text-gray-500">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>Secure passwordless authentication</span>
+          <div className="pt-3.5 mt-3.5 border-t border-black/[0.06] flex items-center justify-center gap-1.5 text-[12px] text-[#8E8E93]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#34C759] shrink-0" strokeWidth={2} />
+            <span>Encrypted passwordless authentication</span>
           </div>
         </div>
       </div>

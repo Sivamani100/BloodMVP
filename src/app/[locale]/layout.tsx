@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Navbar } from '@/components/ui/Navbar';
+import { MobileBottomNav } from '@/components/ui/MobileBottomNav';
 import { Footer } from '@/components/ui/Footer';
 import '@/app/globals.css';
 
@@ -30,7 +31,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -38,11 +39,12 @@ export default async function LocaleLayout({
           crossOrigin=""
         />
       </head>
-      <body className="min-h-screen flex flex-col justify-between antialiased">
+      <body className="min-h-screen flex flex-col justify-between antialiased bg-[#F2F2F7]">
         <NextIntlClientProvider messages={messages}>
           <Navbar />
-          <main className="grow">{children}</main>
+          <main className="grow pb-24 sm:pb-28">{children}</main>
           <Footer />
+          <MobileBottomNav />
         </NextIntlClientProvider>
       </body>
     </html>
