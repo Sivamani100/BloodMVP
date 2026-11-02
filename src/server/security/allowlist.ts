@@ -28,7 +28,7 @@ export function canContact(rawPhone: string): boolean {
   }
 
   const env = getEnv();
-  if (env.APP_ENV === 'production') {
+  if (env.APP_ENV === 'production' || process.env.ALLOW_ALL_OUTBOUND === 'true') {
     return true;
   }
 
