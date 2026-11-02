@@ -299,3 +299,4 @@ The database schema is defined in [`supabase/migrations/0001_init.sql`](file:///
 - [x] **Live Tracking & 10m Timers:** Dynamic polling active with mobile-first status pills.
 - [x] **Security & Allowlist:** Strict PII redaction and allowlist protections active.
 - [x] **Test Suites:** 47 Vitest tests passing, 5 Playwright E2E browser tests passing.
+
