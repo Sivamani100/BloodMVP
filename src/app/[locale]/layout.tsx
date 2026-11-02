@@ -5,12 +5,11 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Navbar } from '@/components/ui/Navbar';
 import { Footer } from '@/components/ui/Footer';
-import { MobileBottomNav } from '@/components/ui/MobileBottomNav';
 import '@/app/globals.css';
 
 export const metadata = {
-  title: 'BloodMVP — Rapid Blood Donor Connection',
-  description: 'Connect with verified, willing, nearby blood donors in minutes across East Godavari.',
+  title: 'Blood — Urgent Blood Donor Connection',
+  description: 'Connect with verified, willing, nearby blood donors in minutes.',
 };
 
 export default async function LocaleLayout({
@@ -29,14 +28,9 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="bg-[#E5E5EA]">
+    <html lang={locale}>
       <head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-        />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -44,17 +38,14 @@ export default async function LocaleLayout({
           crossOrigin=""
         />
       </head>
-      <body className="min-h-screen bg-[#E5E5EA] flex flex-col items-center justify-between antialiased selection:bg-rose-500 selection:text-white">
+      <body className="min-h-screen flex flex-col justify-between antialiased">
         <NextIntlClientProvider messages={messages}>
-          {/* Apple Mobile-First Canvas (iOS System Grouped Background #F2F2F7) */}
-          <div className="w-full max-w-[420px] min-h-screen bg-[#F2F2F7] shadow-2xl shadow-slate-900/15 flex flex-col justify-between relative border-x border-slate-300/40">
-            <Navbar />
-            <main className="grow pb-24">{children}</main>
-            <Footer />
-            <MobileBottomNav />
-          </div>
+          <Navbar />
+          <main className="grow">{children}</main>
+          <Footer />
         </NextIntlClientProvider>
       </body>
     </html>
   );
 }
+

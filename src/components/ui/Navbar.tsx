@@ -16,7 +16,6 @@ import {
   Info,
   ChevronRight,
   Lock,
-  Smartphone,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -38,8 +37,7 @@ export function Navbar() {
   const isDedicatedStep =
     pathname.startsWith('/need-blood') ||
     pathname.startsWith('/r/') ||
-    pathname.startsWith('/become-donor') ||
-    pathname.startsWith('/preview');
+    pathname.startsWith('/become-donor');
 
   if (isDedicatedStep) {
     return null;
@@ -217,23 +215,6 @@ export function Navbar() {
                   <FileText className="w-4 h-4 text-gray-400" />
                   <span>Terms of Service</span>
                 </div>
-              </Link>
-
-              <Link
-                href="/preview"
-                onClick={() => setDrawerOpen(false)}
-                className="flex items-center justify-between p-3 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Smartphone className="w-4 h-4 text-rose-500" />
-                  <span className="flex items-center gap-2">
-                    Device Preview
-                    <span className="text-[10px] bg-rose-50 text-rose-600 font-bold px-1.5 py-0.5 rounded-full border border-rose-200">
-                      Studio
-                    </span>
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
               </Link>
 
               <Link

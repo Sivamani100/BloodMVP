@@ -6,17 +6,8 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
 import { normalizePhone, isValidIndianMobile } from '@/server/security/allowlist';
-import { BloodMVPLogo } from '@/components/ui/BloodMVPLogo';
-import {
-  KeyRound,
-  Loader2,
-  ArrowRight,
-  ShieldCheck,
-  AlertCircle,
-  MessageSquare,
-  Smartphone,
-  CheckCircle2,
-} from 'lucide-react';
+import { RaktKhojLogo } from '@/components/ui/RaktKhojLogo';
+import { KeyRound, Loader2, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
@@ -91,52 +82,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-[85vh] bg-white flex flex-col justify-center px-4 py-6">
-      <div className="max-w-md w-full mx-auto space-y-5">
-        {/* Top Brand & Header */}
-        <div className="text-center space-y-2.5">
+    <div className="w-full min-h-screen bg-white flex flex-col justify-center px-4 py-8">
+      <div className="max-w-md w-full mx-auto space-y-6">
+        <div className="text-center space-y-3">
           <div className="flex justify-center">
-            <BloodMVPLogo className="w-16 h-16" />
+            <RaktKhojLogo className="w-14 h-14" />
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              {step === 'phone' ? (
-                <>
-                  Sign in to Blood<span className="text-rose-600">MVP</span>
-                </>
-              ) : (
-                'Enter Verification Code'
-              )}
-            </h1>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto mt-1 leading-relaxed">
-              {step === 'phone'
-                ? 'Enter your mobile number to receive a secure login code via WhatsApp and SMS'
-                : `We sent a 6-digit verification code to +91 ${phone.replace(/^\+?91/, '')}`}
-            </p>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">
+            {step === 'phone' ? 'Sign in to RaktKhoj' : 'Enter verification code'}
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-500 max-w-xs mx-auto">
+            {step === 'phone'
+              ? 'Enter your mobile number to receive a secure login code via WhatsApp'
+              : 'Enter the 6-digit code sent to your WhatsApp'}
+          </p>
         </div>
 
-        {/* Error Notification Pill */}
         {errorMsg && (
-          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-start gap-2 animate-in fade-in">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
-            <span className="font-medium leading-snug">{errorMsg}</span>
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+            <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* Main Card with Premium Mobile Feel */}
-        <div className="bg-[#FAFBFD] p-5 sm:p-6 rounded-[28px] border border-slate-200/80 shadow-md shadow-slate-900/5 space-y-4">
+        <div className="bg-[#F9FAFB] p-6 rounded-3xl border border-gray-200/80 shadow-xs">
           {step === 'phone' ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
                   Mobile Number
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-slate-500 font-black text-xs bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
-                    <span>🇮🇳</span>
-                    <span>+91</span>
-                  </div>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">
+                    +91
+                  </span>
                   <input
                     type="tel"
                     required
@@ -144,28 +123,15 @@ export default function LoginPage() {
                     value={phone.replace(/^\+?91/, '')}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                     placeholder="98494 97911"
-                    className="w-full pl-20 pr-4 py-3.5 text-base bg-white border border-slate-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-rose-500 font-bold tracking-wider text-slate-900 shadow-xs"
+                    className="w-full pl-14 pr-4 py-3.5 text-base bg-white border border-gray-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-red-500 font-bold tracking-wider text-gray-900"
                   />
-                </div>
-              </div>
-
-              {/* Delivery Channels Info Pill */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-100 text-[11px] text-slate-600">
-                <div className="flex items-center gap-1.5">
-                  <Smartphone className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Carrier SMS</span>
-                </div>
-                <span className="text-slate-300">•</span>
-                <div className="flex items-center gap-1.5">
-                  <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>WhatsApp Cloud</span>
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading || phone.replace(/\D/g, '').length < 10}
-                className="w-full py-4 rounded-2xl font-black text-sm bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-lg shadow-rose-600/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -180,19 +146,19 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-1.5 text-center">
-                  Enter 6-Digit Code
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  6-Digit OTP
                 </label>
                 <div className="relative">
+                  <KeyRound className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
                     maxLength={6}
-                    autoFocus
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="••••••"
-                    className="w-full py-4 text-center text-3xl font-mono tracking-[0.5em] bg-white border border-slate-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-rose-500 font-black text-slate-900 shadow-xs"
+                    placeholder="123456"
+                    className="w-full pl-11 pr-4 py-3.5 text-center text-2xl font-mono tracking-widest bg-white border border-gray-200 rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-red-500 font-bold text-gray-900"
                   />
                 </div>
               </div>
@@ -200,45 +166,31 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="w-full py-4 rounded-2xl font-black text-sm bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-lg shadow-rose-600/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Verify & Continue</span>
-                  </div>
+                  <span>Verify and Sign In</span>
                 )}
               </button>
 
-              <div className="flex items-center justify-between pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep('phone');
-                    setOtp('');
-                  }}
-                  className="text-xs text-slate-500 hover:text-slate-900 font-semibold"
-                >
-                  ← Edit number
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  className="text-xs text-rose-600 hover:text-rose-700 font-black"
-                >
-                  Resend code
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setStep('phone');
+                  setOtp('');
+                }}
+                className="w-full text-center text-xs text-gray-500 hover:text-gray-800 font-medium pt-1"
+              >
+                Change mobile number
+              </button>
             </form>
           )}
 
-          {/* Security Guarantee */}
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[11px] text-slate-500 font-medium">
+          <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-center gap-1.5 text-xs text-gray-500">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>BloodMVP Privacy Shield • Passwordless Authentication</span>
+            <span>Secure passwordless authentication</span>
           </div>
         </div>
       </div>

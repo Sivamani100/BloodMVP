@@ -14,8 +14,7 @@ export function Footer() {
   const isDedicatedStep =
     pathname.startsWith('/need-blood') ||
     pathname.startsWith('/r/') ||
-    pathname.startsWith('/become-donor') ||
-    pathname.startsWith('/preview');
+    pathname.startsWith('/become-donor');
 
   if (isDedicatedStep) {
     return null;

@@ -263,7 +263,7 @@ export default function RequestDetailsPage() {
           {/* Safety notice */}
           <div className="flex items-center gap-2 p-3.5 bg-emerald-50 text-emerald-900 text-xs rounded-2xl border border-emerald-200">
             <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
-            <span>BloodMVP never asks for money or OTP. The doctor conducts final verification.</span>
+            <span>RaktKhoj never asks for money or OTP. The doctor conducts final verification.</span>
           </div>
 
           {/* Sticky footer button */}

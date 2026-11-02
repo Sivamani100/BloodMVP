@@ -3,266 +3,141 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { BloodBagVisual } from '@/components/ui/BloodBagVisual';
 import {
   Heart,
-  ShieldCheck,
+  MapPin,
+  Info,
   ChevronRight,
   Zap,
-  Building2,
-  Sparkles,
-  Radio,
-  Droplet,
-  ArrowUpRight,
-  CreditCard,
-  Wifi,
 } from 'lucide-react';
 
 export default function HomePage() {
   const t = useTranslations('home');
 
   return (
-    <div className="w-full px-5 pt-3 pb-8 space-y-5">
-      {/* 1. Header Balance/Status Area (Exact match to reference "My Balance / $27,120.45") */}
-      <div className="space-y-0.5">
-        <div className="text-xs font-semibold text-slate-500 tracking-tight flex items-center gap-1.5">
-          <span>Live Emergency Network</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-        </div>
-        <div className="text-[32px] font-black text-slate-950 tracking-tight leading-none">
-          Emergency Ready
-        </div>
-      </div>
+    <div className="w-full min-h-screen bg-white pb-12">
+      <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
+        {/* Hero Card: Deep Crimson Card with 3D IV Blood Bag */}
+        <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#E11D48] via-[#DC2626] to-[#881337] p-6 text-white shadow-xl shadow-rose-900/20">
+          <div className="relative z-10 max-w-[62%] space-y-3 pt-2">
+            <h1 className="text-3xl sm:text-[32px] font-black tracking-tight leading-[1.15] text-white">
+              Need blood right now?
+            </h1>
 
-      {/* 2. The Glowing Credit-Card Style Hero Card (Exact match to reference green gradient card) */}
-      <div className="space-y-2.5">
-        <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-tr from-[#FF2D55] via-[#E11D48] to-[#FF453A] p-5 text-white shadow-[0_16px_36px_rgba(225,29,72,0.28)] border border-white/20 select-none">
-          {/* Subtle Ambient Radial Lighting */}
-          <div className="absolute top-0 right-0 w-44 h-44 bg-white/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-black/15 rounded-full blur-2xl pointer-events-none" />
+            <p className="text-sm font-normal text-white/90 leading-relaxed">
+              Get in touch with donors and blood banks near you, in minutes.
+            </p>
 
-          {/* Top Row: Contactless Wave + Card Number / ID */}
-          <div className="relative z-10 flex items-center justify-between text-white/90">
-            <div className="flex items-center gap-2">
-              <Wifi className="w-4 h-4 rotate-90" />
-              <span className="font-mono text-xs tracking-widest text-white/90">
-                &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 108
-              </span>
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-black/20 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10">
-              Priority 1
-            </span>
-          </div>
-
-          {/* Middle: Blood Group Badge & Tagline */}
-          <div className="relative z-10 py-5">
-            <div className="text-xs font-medium text-rose-100">Fastest 10-Min Wave Dispatch</div>
-            <div className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
-              O+ &bull; A+ &bull; B+ &bull; AB- All Groups
+            <div className="pt-3">
+              <Link
+                href="/need-blood"
+                className="inline-flex items-center gap-2 bg-white text-rose-600 hover:bg-rose-50 active:scale-95 font-extrabold text-sm py-3.5 px-5 rounded-2xl shadow-lg transition-all"
+              >
+                <Zap className="w-4 h-4 fill-rose-600 text-rose-600" />
+                <span>Find Blood Now</span>
+              </Link>
             </div>
           </div>
 
-          {/* Bottom Row: ETA Stats + Black Pill Button (Match reference "Pay now" pill button!) */}
-          <div className="relative z-10 flex items-end justify-between pt-1">
-            <div>
-              <div className="text-[11px] text-rose-100 font-medium">Response estimate</div>
-              <div className="text-sm font-extrabold text-white tracking-tight">
-                Under 15 Minutes
-              </div>
-            </div>
-
-            <Link
-              href="/need-blood"
-              className="bg-slate-950 text-white hover:bg-black active:scale-95 text-xs font-black py-2.5 px-4 rounded-full shadow-lg transition-transform flex items-center gap-1.5"
-            >
-              <Zap className="w-3.5 h-3.5 fill-white text-white" />
-              <span>Request now</span>
-            </Link>
+          {/* 3D IV Blood Bag Hanging on Right Side */}
+          <div className="absolute -top-4 -right-3 w-44 sm:w-48 h-full flex items-center justify-center">
+            <BloodBagVisual className="w-44 h-72 translate-y-2 scale-105" />
           </div>
         </div>
 
-        {/* 3 Pagination Indicator Dots (Exact match to reference • • •) */}
-        <div className="flex items-center justify-center gap-1.5 pt-1">
-          <div className="w-4 h-1.5 bg-slate-900 rounded-full" />
-          <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" />
-          <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" />
-        </div>
-      </div>
-
-      {/* 3. Services Grouped List (Exact match to reference "Accounts >" with icon rows!) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-slate-900 font-bold text-sm px-1">
-          <span>Services</span>
-          <ChevronRight className="w-4 h-4 text-slate-400" />
-        </div>
-
-        <div className="bg-white rounded-[24px] p-2 border border-black/[0.05] shadow-xs space-y-0.5">
-          {/* Row 1: Need Blood */}
-          <Link
-            href="/need-blood"
-            className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 active:scale-[0.99] transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-xs">
-                <CreditCard className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <div className="font-extrabold text-sm text-slate-900 leading-tight">
-                  Find Blood Donors
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium">
-                  Instant 10-minute wave dispatch
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-slate-900 font-bold text-xs">
-              <span className="text-rose-600 font-extrabold">Instant</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            </div>
-          </Link>
-
-          {/* Row 2: Become a Donor */}
+        {/* Dual Action Cards (Become a Donor & Find Blood Camps) */}
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          {/* Card 1: Become a Donor */}
           <Link
             href="/become-donor"
-            className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 active:scale-[0.99] transition-all"
+            className="flex flex-col justify-between p-4 rounded-2xl bg-[#FAFAFA] border border-gray-100 hover:border-rose-200 hover:bg-rose-50/20 active:scale-[0.98] transition-all min-h-[148px]"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs">
-                <Heart className="w-4 h-4 fill-white text-white" />
-              </div>
-              <div>
-                <div className="font-extrabold text-sm text-slate-900 leading-tight">
-                  Become a Donor
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium">
-                  Verified life-saver registry
-                </div>
-              </div>
+            <div className="w-9 h-9 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 mb-3">
+              <Heart className="w-4 h-4 text-rose-500 fill-rose-500/20" />
             </div>
-            <div className="flex items-center gap-1 text-slate-900 font-bold text-xs">
-              <span className="text-emerald-700 font-extrabold">Life Saver</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <div>
+              <h2 className="font-extrabold text-[15px] text-gray-900 leading-tight">
+                Become a Donor
+              </h2>
+              <p className="text-xs text-gray-500 mt-1 leading-snug">
+                Get matched to nearby requests
+              </p>
             </div>
           </Link>
 
-          {/* Row 3: Blood Centers Stock */}
+          {/* Card 2: Find Blood Camps */}
           <Link
             href="/need-blood"
-            className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 active:scale-[0.99] transition-all"
+            className="flex flex-col justify-between p-4 rounded-2xl bg-[#FAFAFA] border border-gray-100 hover:border-rose-200 hover:bg-rose-50/20 active:scale-[0.98] transition-all min-h-[148px]"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-xs">
-                <Building2 className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <div className="font-extrabold text-sm text-slate-900 leading-tight">
-                  Blood Centers
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium">
-                  14+ verified banks &amp; hotlines
-                </div>
-              </div>
+            <div className="w-9 h-9 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 mb-3">
+              <MapPin className="w-4 h-4 text-rose-500" />
             </div>
-            <div className="flex items-center gap-1 text-slate-900 font-bold text-xs">
-              <span className="text-slate-600 font-bold">14+ Banks</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            </div>
-          </Link>
-
-          {/* Row 4: How It Works */}
-          <Link
-            href="/how-it-works"
-            className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 active:scale-[0.99] transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <div className="font-extrabold text-sm text-slate-900 leading-tight">
-                  Protocol &amp; Rules
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium">
-                  Zero spam &bull; Confidential code
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-slate-900 font-bold text-xs">
-              <span className="text-slate-600 font-bold">How it works</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <div>
+              <h2 className="font-extrabold text-[15px] text-gray-900 leading-tight">
+                Find Blood Camps
+              </h2>
+              <p className="text-xs text-gray-500 mt-1 leading-snug">
+                Upcoming drives near you
+              </p>
             </div>
           </Link>
         </div>
-      </div>
 
-      {/* 4. Recent Activity Section (Exact match to reference "Recent activity") */}
-      <div className="space-y-2">
-        <div className="text-slate-900 font-bold text-sm px-1">
-          Recent Activity
+        {/* Demo Notice Banner Pill */}
+        <Link
+          href="/how-it-works"
+          className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FBFBFC] border border-gray-100 hover:bg-gray-50 active:scale-[0.99] transition-all text-xs text-gray-700"
+        >
+          <div className="flex items-center gap-2.5 pr-2">
+            <Info className="w-4 h-4 text-rose-500 shrink-0" />
+            <span className="leading-snug">
+              <strong className="font-semibold text-gray-900">RaktKhoj is a demo site</strong> and should not be used for real emergencies.
+            </span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+        </Link>
+
+        {/* 3-Column Stats Row */}
+        <div className="grid grid-cols-3 gap-2.5 pt-1">
+          <div className="p-3.5 rounded-2xl bg-white border border-gray-100 text-center shadow-xs">
+            <div className="text-xl sm:text-2xl font-black text-gray-900">
+              56 L
+            </div>
+            <div className="text-[11px] text-gray-500 mt-0.5 font-medium leading-tight">
+              Registered Donors
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white border border-gray-100 text-center shadow-xs">
+            <div className="text-xl sm:text-2xl font-black text-gray-900">
+              4.7 K
+            </div>
+            <div className="text-[11px] text-gray-500 mt-0.5 font-medium leading-tight">
+              Blood Centers
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white border border-gray-100 text-center shadow-xs">
+            <div className="text-xl sm:text-2xl font-black text-gray-900">
+              2.7 L
+            </div>
+            <div className="text-[11px] text-gray-500 mt-0.5 font-medium leading-tight">
+              Camps Organised
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-[24px] p-2 border border-black/[0.05] shadow-xs space-y-1">
-          {/* Activity 1 */}
-          <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
-                <Droplet className="w-4 h-4 fill-rose-600 text-rose-600" />
-              </div>
-              <div>
-                <div className="font-extrabold text-xs text-slate-900 leading-tight">
-                  Emergency O+ Wave Alert
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  Government General Hospital, Rajahmundry
-                </div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-xs font-black text-emerald-600">&lt; 12m</div>
-              <div className="text-[9px] text-slate-400">Response</div>
-            </div>
+        {/* Voluntary Blood Donation Day Celebration Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-r from-amber-50 via-rose-50/50 to-emerald-50 p-4 text-center space-y-1.5 shadow-xs">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-800 uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span>National Voluntary Blood Donation Day</span>
           </div>
-
-          {/* Activity 2 */}
-          <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="font-extrabold text-xs text-slate-900 leading-tight">
-                  Verified Donor Enrolled
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  Diwancheruvu &bull; Ready on call
-                </div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-xs font-black text-slate-800">Verified</div>
-              <div className="text-[9px] text-slate-400">OTP Confirmed</div>
-            </div>
-          </div>
-
-          {/* Activity 3 */}
-          <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="font-extrabold text-xs text-slate-900 leading-tight">
-                  GSL Trust Blood Centre
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  Stock verification updated
-                </div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-xs font-black text-slate-800">Checked</div>
-              <div className="text-[9px] text-slate-400">Today</div>
-            </div>
-          </div>
+          <p className="text-xs text-gray-600 font-medium">
+            One Drop of Humanity. Give Blood. Save Lives.
+          </p>
         </div>
       </div>
     </div>
