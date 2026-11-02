@@ -22,7 +22,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="bg-slate-50/80 border-t border-slate-100 py-8 px-4 text-center text-xs text-slate-500 mb-16">
+    <footer className="bg-transparent py-8 px-4 text-center text-xs text-slate-500 mb-24">
       <div className="space-y-3.5">
         <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-200/80">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
