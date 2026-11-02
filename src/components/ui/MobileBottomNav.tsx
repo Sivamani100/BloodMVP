@@ -3,11 +3,12 @@
 import React from 'react';
 import { usePathname, Link } from '@/i18n/routing';
 import {
-  Home,
-  Zap,
+  CreditCard,
   Heart,
+  Building2,
+  Settings,
   User,
-  Activity,
+  Zap,
 } from 'lucide-react';
 
 export function MobileBottomNav() {
@@ -25,8 +26,8 @@ export function MobileBottomNav() {
   }
 
   const isHome = pathname === '/';
-  const isNeedBlood = pathname.startsWith('/need-blood');
   const isDonor = pathname.startsWith('/become-donor') || pathname.startsWith('/donor');
+  const isBanks = pathname.startsWith('/how-it-works');
   const isAccount = pathname.startsWith('/login') || pathname.startsWith('/admin');
 
   return (
@@ -34,61 +35,56 @@ export function MobileBottomNav() {
       aria-label="Apple Tab Bar"
       className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none"
     >
-      <div className="max-w-[420px] mx-auto px-4 pb-3 pointer-events-auto">
-        <div className="h-16 rounded-[24px] bg-white/90 backdrop-blur-2xl border border-black/[0.07] shadow-[0_4px_24px_rgba(0,0,0,0.08)] px-3 flex items-center justify-around">
-          {/* Tab 1: Home */}
+      <div className="max-w-[420px] mx-auto px-6 pb-4 pointer-events-auto">
+        <div className="h-15 rounded-[28px] bg-white/95 backdrop-blur-2xl border border-black/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.08)] px-5 flex items-center justify-between select-none">
+          {/* Tab 1: Home / Wallet (Active dark in reference) */}
           <Link
             href="/"
-            className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl transition-all active:scale-90 ${
-              isHome ? 'text-[#E11D48]' : 'text-[#8E8E93] hover:text-slate-900'
+            className={`p-2 rounded-2xl transition-all active:scale-90 ${
+              isHome ? 'text-slate-950' : 'text-slate-400 hover:text-slate-700'
             }`}
+            aria-label="Home"
           >
-            <Home className="w-5 h-5" strokeWidth={isHome ? 2.6 : 2} />
-            <span className={`text-[10px] tracking-tight ${isHome ? 'font-bold' : 'font-medium'}`}>
-              Home
-            </span>
-          </Link>
-
-          {/* Tab 2: Need Blood (Apple Urgent Tab) */}
-          <Link
-            href="/need-blood"
-            className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl transition-all active:scale-90 ${
-              isNeedBlood ? 'text-[#E11D48]' : 'text-[#8E8E93] hover:text-slate-900'
-            }`}
-          >
-            <div className="relative">
-              <Zap className="w-5 h-5" strokeWidth={isNeedBlood ? 2.6 : 2} />
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
+            <div className={`p-1.5 rounded-xl transition-all ${isHome ? 'bg-slate-100' : ''}`}>
+              <CreditCard className="w-5 h-5" strokeWidth={isHome ? 2.6 : 2} />
             </div>
-            <span className={`text-[10px] tracking-tight ${isNeedBlood ? 'font-bold' : 'font-medium'}`}>
-              Need Blood
-            </span>
           </Link>
 
-          {/* Tab 3: Donate */}
+          {/* Tab 2: Donate / Heart */}
           <Link
             href="/become-donor"
-            className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl transition-all active:scale-90 ${
-              isDonor ? 'text-[#E11D48]' : 'text-[#8E8E93] hover:text-slate-900'
+            className={`p-2 rounded-2xl transition-all active:scale-90 ${
+              isDonor ? 'text-slate-950' : 'text-slate-400 hover:text-slate-700'
             }`}
+            aria-label="Donate"
           >
-            <Heart className="w-5 h-5" strokeWidth={isDonor ? 2.6 : 2} />
-            <span className={`text-[10px] tracking-tight ${isDonor ? 'font-bold' : 'font-medium'}`}>
-              Donate
-            </span>
+            <div className={`p-1.5 rounded-xl transition-all ${isDonor ? 'bg-slate-100' : ''}`}>
+              <Heart className="w-5 h-5" strokeWidth={isDonor ? 2.6 : 2} />
+            </div>
           </Link>
 
-          {/* Tab 4: Profile / Login */}
+          {/* Tab 3: Need Blood / Emergency Zap */}
+          <Link
+            href="/need-blood"
+            className="p-2 rounded-2xl transition-all active:scale-90 text-slate-400 hover:text-slate-700"
+            aria-label="Emergency Request"
+          >
+            <div className="p-1.5 rounded-xl transition-all hover:bg-slate-100">
+              <Zap className="w-5 h-5 text-[#E11D48] fill-[#E11D48]" />
+            </div>
+          </Link>
+
+          {/* Tab 4: Profile / Settings */}
           <Link
             href="/login"
-            className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl transition-all active:scale-90 ${
-              isAccount ? 'text-[#E11D48]' : 'text-[#8E8E93] hover:text-slate-900'
+            className={`p-2 rounded-2xl transition-all active:scale-90 ${
+              isAccount ? 'text-slate-950' : 'text-slate-400 hover:text-slate-700'
             }`}
+            aria-label="Account"
           >
-            <User className="w-5 h-5" strokeWidth={isAccount ? 2.6 : 2} />
-            <span className={`text-[10px] tracking-tight ${isAccount ? 'font-bold' : 'font-medium'}`}>
-              Profile
-            </span>
+            <div className={`p-1.5 rounded-xl transition-all ${isAccount ? 'bg-slate-100' : ''}`}>
+              <Settings className="w-5 h-5" strokeWidth={isAccount ? 2.6 : 2} />
+            </div>
           </Link>
         </div>
       </div>

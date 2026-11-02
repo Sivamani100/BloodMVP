@@ -6,19 +6,19 @@ import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { Locale } from '@/lib/constants';
 import { BloodMVPLogo } from './BloodMVPLogo';
 import {
-  Menu,
+  Bell,
   X,
-  Heart,
   Droplet,
+  Heart,
   User,
   Shield,
-  FileText,
   Info,
   ChevronRight,
   Lock,
   Zap,
-  Activity,
-  MapPin,
+  Wifi,
+  Signal,
+  BatteryMedium,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -47,35 +47,52 @@ export function Navbar() {
 
   return (
     <>
-      {/* Apple-style Translucent Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-[#F2F2F7]/85 backdrop-blur-2xl border-b border-black/[0.06] transition-all">
-        <div className="max-w-[420px] mx-auto px-4 h-13 flex items-center justify-between">
-          {/* Left: Apple Style Brand Identity */}
-          <Link href="/" className="flex items-center gap-2 group active:opacity-75 transition-opacity">
-            <BloodMVPLogo className="w-7 h-7" />
-            <div className="flex flex-col">
-              <span className="font-extrabold text-[17px] tracking-tight text-slate-900 leading-none">
-                Blood<span className="text-[#E11D48]">MVP</span>
-              </span>
-              <span className="text-[10px] text-slate-500 font-semibold tracking-tight leading-none mt-0.5 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                Rajahmundry &bull; Live
-              </span>
-            </div>
+      <header className="sticky top-0 z-40 bg-[#F2F2F7]/90 backdrop-blur-2xl transition-all">
+        {/* Apple Dynamic Island & Status Bar Header (Matching Reference Shot) */}
+        <div className="max-w-[420px] mx-auto px-7 pt-3 pb-1 flex items-center justify-between text-xs font-semibold text-slate-900 select-none">
+          <span className="font-bold text-[13px] tracking-tight">9:41</span>
+          {/* Dynamic Island pill */}
+          <div className="w-24 h-5 bg-black rounded-full flex items-center justify-center">
+            <span className="w-2 h-2 rounded-full bg-emerald-500/80 animate-pulse mr-1.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+          </div>
+          <div className="flex items-center gap-1.5 text-slate-900">
+            <Signal className="w-3.5 h-3.5 fill-current" />
+            <Wifi className="w-3.5 h-3.5" />
+            <BatteryMedium className="w-4 h-4 fill-current" />
+          </div>
+        </div>
+
+        {/* Apple Navigation Bar: Avatar, BloodMVP, Bell Notification */}
+        <div className="max-w-[420px] mx-auto px-6 h-12 flex items-center justify-between">
+          {/* Left: Avatar button (Opens Drawer/Language) */}
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-900 to-slate-700 text-white flex items-center justify-center text-xs font-bold shadow-xs active:scale-95 transition-transform"
+            aria-label="Profile Menu"
+          >
+            <User className="w-4 h-4 text-white" />
+          </button>
+
+          {/* Center: BloodMVP Brand Title */}
+          <Link href="/" className="flex items-center gap-1.5">
+            <span className="font-extrabold text-base tracking-tight text-slate-900">
+              Blood<span className="text-[#E11D48]">MVP</span>
+            </span>
           </Link>
 
-          {/* Right: iOS Controls (Language Pill + Profile Icon) */}
+          {/* Right: Notification Bell & Language Dropdown */}
           <div className="flex items-center gap-2">
-            {/* iOS Language Pill */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="h-7 px-2.5 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 font-semibold text-[11px] uppercase tracking-wider text-slate-800 flex items-center gap-1 transition-all"
+                className="h-7 px-2.5 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 font-bold text-[10px] uppercase tracking-wider text-slate-800 flex items-center gap-1 transition-all"
                 aria-label="Language"
               >
                 <span>{locale.toUpperCase()}</span>
-                <span className="text-[8px] text-slate-500">▼</span>
+                <span className="text-[7px] text-slate-400">▼</span>
               </button>
 
               {langMenuOpen && (
@@ -107,24 +124,25 @@ export function Navbar() {
               )}
             </div>
 
-            {/* iOS Menu / Action Button */}
+            {/* Notification Bell with indicator */}
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 flex items-center justify-center text-slate-700 transition-all"
-              aria-label="Menu"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-700 hover:bg-black/5 relative active:scale-95 transition-all"
+              aria-label="Notifications"
             >
-              <Menu className="w-3.5 h-3.5 text-slate-800" strokeWidth={2.4} />
+              <Bell className="w-4 h-4 text-slate-800" strokeWidth={2.2} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#E11D48] ring-2 ring-[#F2F2F7]" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* iOS Slide-in Sheet Menu */}
+      {/* Slide-over Drawer Menu */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/35 backdrop-blur-xs transition-opacity"
             onClick={() => setDrawerOpen(false)}
           />
 
@@ -155,7 +173,7 @@ export function Navbar() {
                 >
                   <div className="flex items-center gap-3">
                     <Droplet className="w-4 h-4 text-rose-500" />
-                    <span>Home</span>
+                    <span>Home Dashboard</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </Link>
@@ -215,7 +233,7 @@ export function Navbar() {
                 >
                   <div className="flex items-center gap-3">
                     <Lock className="w-4 h-4 text-slate-600" />
-                    <span>Admin Console</span>
+                    <span>Admin Operations</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </Link>

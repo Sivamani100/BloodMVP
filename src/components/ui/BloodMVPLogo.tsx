@@ -77,3 +77,4 @@ export function BloodMVPLogo({ className = 'w-9 h-9' }: { className?: string }) 
 
 // Backward compatibility alias
 export const RaktKhojLogo = BloodMVPLogo;
+
