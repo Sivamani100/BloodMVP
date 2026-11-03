@@ -7,56 +7,7 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"SF Pro Text"',
-          '"SF Pro Display"',
-          '"Helvetica Neue"',
-          'Helvetica',
-          'Arial',
-          'sans-serif',
-        ],
-        mono: [
-          '"SF Mono"',
-          'SFMono-Regular',
-          'ui-monospace',
-          'Menlo',
-          'Monaco',
-          'Consolas',
-          'monospace',
-        ],
-      },
       colors: {
-        // Apple HIG System Colors
-        ios: {
-          blue: '#007AFF',
-          green: '#34C759',
-          indigo: '#5856D6',
-          orange: '#FF9500',
-          pink: '#FF2D55',
-          purple: '#AF52DE',
-          red: '#FF3B30',
-          teal: '#5AC8FA',
-          yellow: '#FFCC00',
-          gray: {
-            1: '#8E8E93',
-            2: '#AEAEB2',
-            3: '#C7C7CC',
-            4: '#D1D1D6',
-            5: '#E5E5EA',
-            6: '#F2F2F7',
-          },
-          bg: {
-            primary: '#FFFFFF',
-            secondary: '#F2F2F7',
-            tertiary: '#FFFFFF',
-            grouped: '#F2F2F7',
-          },
-          separator: 'rgba(60, 60, 67, 0.12)',
-          fill: 'rgba(120, 120, 128, 0.12)',
-        },
         blood: {
           50: '#fef2f2',
           100: '#ffe1e1',
@@ -71,28 +22,8 @@ module.exports = {
           950: '#450a0a',
         },
       },
-      borderRadius: {
-        'ios-btn': '12px',
-        'ios-card': '14px',
-        'ios-card-float': '22px',
-        'ios-tile': '18px',
-        'ios-sheet': '28px',
-        'ios-modal': '34px',
-        'ios-pill': '9999px',
-      },
-      boxShadow: {
-        'ios-card': '0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
-        'ios-float': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
-        'ios-floating': '0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
-        'ios-floating-dark': '0 4px 24px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1)',
-        'ios-tab-bar': '0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03)',
-        'ios-sheet': '0 -4px 24px -2px rgba(0, 0, 0, 0.08)',
-      },
-      transitionTimingFunction: {
-        'ios-spring': 'cubic-bezier(0.175, 0.885, 0.32, 1.1)',
-        'ios-ease': 'cubic-bezier(0.25, 1, 0.5, 1)',
-      },
     },
   },
   plugins: [],
 };
+

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { WizardHeader } from '@/components/ui/WizardHeader';
 import { BloodGroup } from '@/lib/constants';
@@ -19,8 +20,6 @@ import {
   Info,
   Send,
   Loader2,
-  ChevronDown,
-  Check,
 } from 'lucide-react';
 
 interface Hospital {
@@ -101,8 +100,10 @@ const DEFAULT_HOSPITALS: Hospital[] = [
 
 export default function NeedBloodFlowPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryBg = searchParams.get('bg') as BloodGroup | null;
 
-  // Wizard Steps:
+  // Wizard Step:
   // 1: Blood Group
   // 2: Location (State & District)
   // 3: Hospital Selection
@@ -114,7 +115,7 @@ export default function NeedBloodFlowPage() {
   const [step, setStep] = useState<number>(1);
 
   // Form states
-  const [bloodGroup, setBloodGroup] = useState<BloodGroup | null>('O+');
+  const [bloodGroup, setBloodGroup] = useState<BloodGroup | null>(queryBg || 'O+');
   const [stateName, setStateName] = useState<string>('Andhra Pradesh');
   const [districtName, setDistrictName] = useState<string>('East Godavari');
   const [selectedHospital, setSelectedHospital] = useState<Hospital>(DEFAULT_HOSPITALS[0]);
@@ -262,7 +263,7 @@ export default function NeedBloodFlowPage() {
   );
 
   return (
-    <div className="w-full min-h-screen bg-[#F2F2F7] pb-28 text-gray-950 font-sans">
+    <div className="w-full min-h-screen bg-white pb-24 text-gray-900">
       {/* Step 1: Patient Blood Group */}
       {step === 1 && (
         <>
@@ -271,21 +272,21 @@ export default function NeedBloodFlowPage() {
             onBack={() => router.push('/')}
             progressPercent={20}
           />
-          <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
-            <div className="space-y-1.5">
-              <h1 className="text-[26px] sm:text-[30px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
-                Patient&apos;s Blood Group
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-6">
+            <div>
+              <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight">
+                What is the blood group of the patient?
               </h1>
-              <p className="text-[15px] text-[#8E8E93] leading-relaxed">
-                We search matched donors and local blood banks with compatible blood.
+              <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                We&apos;ll search banks and donors with a matching or compatible group.
               </p>
             </div>
 
-            {/* 2x4 Blood Groups Grid (Apple Squircle Tiles) */}
-            <div className="grid grid-cols-4 gap-2.5 pt-1">
+            {/* 2x4 Blood Groups Grid */}
+            <div className="grid grid-cols-4 gap-2.5 pt-2">
               {[
                 { group: 'O+', type: 'Common' },
-                { group: 'O-', type: 'Universal' },
+                { group: 'O-', type: 'Common' },
                 { group: 'A+', type: 'Common' },
                 { group: 'A-', type: 'Common' },
                 { group: 'B+', type: 'Common' },
@@ -299,20 +300,16 @@ export default function NeedBloodFlowPage() {
                     key={item.group}
                     type="button"
                     onClick={() => setBloodGroup(item.group as BloodGroup)}
-                    className={`py-3.5 px-2 rounded-[14px] flex flex-col items-center justify-center ios-press select-none transition-all ${
+                    className={`py-4 px-2 rounded-2xl flex flex-col items-center justify-center transition-all ${
                       isSelected
-                        ? 'bg-[#FF3B30] text-white shadow-sm ring-2 ring-[#FF3B30]/30'
-                        : 'bg-white border border-black/[0.06] shadow-2xs text-gray-900 hover:bg-[#F9F9FB]'
+                        ? 'bg-rose-50/70 border-2 border-red-500 shadow-sm text-red-600 scale-[1.02]'
+                        : 'bg-[#F9FAFB] border border-gray-200/80 hover:bg-gray-100/70 text-gray-900'
                     }`}
                   >
-                    <span className="font-bold text-[22px] tracking-tight leading-none mb-1">
+                    <span className="font-extrabold text-2xl tracking-tight leading-none mb-1">
                       {item.group}
                     </span>
-                    <span
-                      className={`text-[11px] font-medium ${
-                        isSelected ? 'text-white/80' : 'text-[#8E8E93]'
-                      }`}
-                    >
+                    <span className="text-[11px] text-gray-500 font-medium">
                       {item.type}
                     </span>
                   </button>
@@ -326,27 +323,27 @@ export default function NeedBloodFlowPage() {
                 type="button"
                 onClick={() => {
                   setBloodGroup('O+');
-                  alert('Hospital testing will verify blood group. O- is the universal red-cell donor for emergency use.');
+                  alert('If unsure, hospital testing will determine the exact blood group. O- is the universal red cell donor.');
                 }}
-                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#007AFF] hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900"
               >
-                <Info className="w-3.5 h-3.5 text-[#007AFF]" strokeWidth={2} />
-                <span>Not sure which blood group?</span>
+                <Info className="w-4 h-4 text-gray-500" />
+                <span>Not sure which group?</span>
               </button>
             </div>
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={() => setStep(2)}
                 disabled={!bloodGroup}
-                className={`w-full h-12 rounded-[12px] font-semibold text-[17px] shadow-sm ios-press transition-all select-none ${
+                className={`w-full py-4 rounded-2xl font-bold text-base transition-all ${
                   bloodGroup
-                    ? 'bg-[#FF3B30] text-white active:scale-[0.98]'
-                    : 'bg-[#C7C7CC] text-white cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99]'
+                    : 'bg-red-200 text-white cursor-not-allowed'
                 }`}
               >
                 Continue
@@ -364,34 +361,33 @@ export default function NeedBloodFlowPage() {
             onBack={() => setStep(1)}
             progressPercent={40}
           />
-          <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-6">
             <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1.5">
-                <h1 className="text-[26px] sm:text-[30px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
-                  Patient Location
+              <div>
+                <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight">
+                  Share patient&apos;s location
                 </h1>
-                <p className="text-[15px] text-[#8E8E93] leading-relaxed">
-                  Used to pinpoint verified blood banks and active donors within travel radius.
+                <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                  We use it to find real blood banks and donors within range — nothing is stored or shared.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={playAudioSummary}
-                className="w-9 h-9 rounded-full bg-[#767680]/10 hover:bg-[#767680]/15 flex items-center justify-center text-gray-700 shrink-0 mt-1 ios-press"
+                className="w-10 h-10 rounded-2xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 shrink-0 mt-1 transition-colors"
                 aria-label="Listen"
               >
-                <Volume2 className="w-4 h-4 text-gray-700" strokeWidth={2} />
+                <Volume2 className="w-5 h-5 text-gray-600" />
               </button>
             </div>
 
-            {/* iOS Grouped Inset Select Rows */}
-            <div className="bg-white rounded-[16px] border border-black/[0.06] shadow-2xs divide-y divide-black/[0.06] overflow-hidden">
-              <div className="relative flex items-center px-4 py-3 hover:bg-[#F9F9FB] transition-colors">
-                <span className="text-[15px] text-[#8E8E93] w-24 shrink-0 font-medium">State</span>
+            {/* Dropdown pickers */}
+            <div className="space-y-3 pt-2">
+              <div>
                 <select
                   value={stateName}
                   onChange={(e) => setStateName(e.target.value)}
-                  className="w-full bg-transparent text-[16px] font-semibold text-gray-900 focus:outline-hidden appearance-none cursor-pointer pr-6"
+                  className="w-full py-4 px-4 bg-[#F9FAFB] border border-gray-200/90 rounded-2xl text-base font-semibold text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500 appearance-none cursor-pointer"
                 >
                   <option value="Andhra Pradesh">Andhra Pradesh</option>
                   <option value="Telangana">Telangana</option>
@@ -399,15 +395,13 @@ export default function NeedBloodFlowPage() {
                   <option value="Tamil Nadu">Tamil Nadu</option>
                   <option value="Maharashtra">Maharashtra</option>
                 </select>
-                <ChevronDown className="w-4 h-4 text-[#8E8E93] absolute right-4 pointer-events-none" strokeWidth={2} />
               </div>
 
-              <div className="relative flex items-center px-4 py-3 hover:bg-[#F9F9FB] transition-colors">
-                <span className="text-[15px] text-[#8E8E93] w-24 shrink-0 font-medium">District</span>
+              <div>
                 <select
                   value={districtName}
                   onChange={(e) => setDistrictName(e.target.value)}
-                  className="w-full bg-transparent text-[16px] font-semibold text-gray-900 focus:outline-hidden appearance-none cursor-pointer pr-6"
+                  className="w-full py-4 px-4 bg-[#F9FAFB] border border-gray-200/90 rounded-2xl text-base font-semibold text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500 appearance-none cursor-pointer"
                 >
                   <option value="East Godavari">East Godavari</option>
                   <option value="Kakinada">Kakinada</option>
@@ -417,28 +411,27 @@ export default function NeedBloodFlowPage() {
                   <option value="Krishna">Krishna</option>
                   <option value="Guntur">Guntur</option>
                 </select>
-                <ChevronDown className="w-4 h-4 text-[#8E8E93] absolute right-4 pointer-events-none" strokeWidth={2} />
               </div>
             </div>
 
-            {/* Location Notice Callout */}
-            <div className="p-3.5 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-start gap-2.5 text-[13px] text-gray-800 leading-snug">
-              <MapPin className="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5" strokeWidth={2} />
+            {/* Location Notice Pill */}
+            <div className="p-4 rounded-2xl bg-[#FFF1F2] border border-rose-100 flex items-start gap-3 text-xs text-gray-800 leading-relaxed">
+              <MapPin className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
               <span>
-                Coordinates pre-selected to <strong>{districtName}, {stateName}</strong>.
+                We have added state &amp; district based on your shared location
               </span>
             </div>
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm ios-press transition-all select-none"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all"
               >
-                Confirm Location
+                Confirm
               </button>
             </div>
           </div>
@@ -453,30 +446,25 @@ export default function NeedBloodFlowPage() {
             onBack={() => setStep(2)}
             progressPercent={60}
           />
-          <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
-            <div className="space-y-1">
-              <h1 className="text-[26px] sm:text-[30px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
-                Confirm Hospital
-              </h1>
-              <p className="text-[15px] text-[#8E8E93]">
-                Select the medical facility where blood units are needed.
-              </p>
-            </div>
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-4">
+            <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight">
+              Confirm the hospital patient is at
+            </h1>
 
-            {/* Apple Style Search Bar */}
-            <div className="relative flex items-center bg-[#767680]/12 rounded-[10px] px-3 py-2 border border-transparent focus-within:bg-white focus-within:border-[#007AFF] focus-within:ring-2 focus-within:ring-[#007AFF]/15 transition-all">
-              <Search className="w-4 h-4 text-[#8E8E93] shrink-0 mr-2" strokeWidth={2} />
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search hospital or clinic name"
-                className="w-full bg-transparent text-[16px] text-gray-900 focus:outline-hidden placeholder:text-[#8E8E93]"
+                placeholder="Search hospital by name"
+                className="w-full py-3.5 pl-11 pr-4 bg-[#F9FAFB] border border-gray-200 rounded-2xl text-sm font-medium text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500"
               />
             </div>
 
-            {/* Inset Grouped Hospital Cards List */}
-            <div className="bg-white rounded-[16px] border border-black/[0.06] shadow-2xs divide-y divide-black/[0.06] overflow-hidden">
+            {/* Hospital Cards List */}
+            <div className="space-y-2.5 pt-1">
               {filteredHospitals.map((hosp) => {
                 const isSelected = selectedHospital.id === hosp.id;
                 return (
@@ -484,35 +472,30 @@ export default function NeedBloodFlowPage() {
                     key={hosp.id}
                     type="button"
                     onClick={() => setSelectedHospital(hosp)}
-                    className={`w-full text-left p-3.5 transition-colors flex items-start justify-between gap-3 ${
-                      isSelected ? 'bg-[#FF3B30]/5' : 'hover:bg-[#F9F9FB]'
+                    className={`w-full text-left p-4 rounded-2xl transition-all ${
+                      isSelected
+                        ? 'bg-[#FFF1F2] border border-rose-300 shadow-xs'
+                        : 'bg-[#F9FAFB] border border-gray-200/80 hover:bg-gray-100/70'
                     }`}
                   >
-                    <div className="space-y-1 grow">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`font-semibold text-[15px] leading-snug ${
-                            isSelected ? 'text-[#FF3B30]' : 'text-gray-900'
-                          }`}
-                        >
-                          {hosp.name}
-                        </span>
-                      </div>
-                      <p className="text-[12px] text-[#8E8E93] leading-normal line-clamp-2">
-                        {hosp.address}
-                      </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <span
+                        className={`font-bold text-[15px] leading-snug ${
+                          isSelected ? 'text-red-600' : 'text-gray-900'
+                        }`}
+                      >
+                        {hosp.name}
+                      </span>
+                      <span className="text-xs font-semibold text-gray-400 shrink-0 mt-0.5">
+                        · ∧ {hosp.distanceKm} km
+                      </span>
                     </div>
 
-                    <div className="flex flex-col items-end shrink-0 pt-0.5">
-                      <span className="text-[12px] font-semibold text-[#8E8E93]">
-                        {hosp.distanceKm} km
-                      </span>
-                      {isSelected && (
-                        <div className="w-5 h-5 rounded-full bg-[#FF3B30] text-white flex items-center justify-center mt-2 shadow-xs">
-                          <Check className="w-3 h-3" strokeWidth={3} />
-                        </div>
-                      )}
-                    </div>
+                    {isSelected && hosp.address && (
+                      <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                        {hosp.address}
+                      </p>
+                    )}
                   </button>
                 );
               })}
@@ -520,14 +503,14 @@ export default function NeedBloodFlowPage() {
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={() => setStep(4)}
-                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm ios-press transition-all select-none"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all"
               >
-                Confirm Hospital
+                Confirm
               </button>
             </div>
           </div>
@@ -542,60 +525,85 @@ export default function NeedBloodFlowPage() {
             onBack={() => setStep(3)}
           />
 
-          {/* Map Preview Container */}
-          <div className="relative w-full h-48 bg-slate-100 hairline-b overflow-hidden">
-            <div className="absolute inset-0 opacity-70 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]">
-              <svg className="w-full h-full opacity-30" viewBox="0 0 400 240">
-                <path d="M0 60 Q 150 90 280 40 T 400 120" stroke="#94A3B8" strokeWidth="4" fill="none" />
-                <path d="M50 0 Q 120 120 200 180 T 360 240" stroke="#94A3B8" strokeWidth="3" fill="none" />
+          {/* Top Interactive Map Preview */}
+          <div className="relative w-full h-56 bg-slate-100 border-b border-gray-100 overflow-hidden">
+            {/* Visual stylised map background */}
+            <div className="absolute inset-0 opacity-80 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+              <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
+                <path d="M0 60 Q 150 90 280 40 T 400 120" stroke="#CBD5E1" strokeWidth="4" fill="none" />
+                <path d="M50 0 Q 120 120 200 180 T 360 240" stroke="#CBD5E1" strokeWidth="3" fill="none" />
+                <path d="M180 80 Q 240 140 320 110" stroke="#CBD5E1" strokeWidth="6" fill="none" />
               </svg>
             </div>
 
             {/* Pins */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="relative w-64 h-32">
-                <div className="absolute top-6 left-10 flex flex-col items-center">
-                  <div className="w-7 h-7 rounded-full bg-[#FF3B30] border-2 border-white shadow-md flex items-center justify-center text-white text-[10px] font-bold">
-                    ★
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative w-64 h-36">
+                {/* Best match pin */}
+                <div className="absolute top-10 left-12 flex flex-col items-center">
+                  <div className="w-8 h-8 rounded-full bg-red-600 border-2 border-white shadow-lg flex items-center justify-center text-white text-[10px] font-black">
+                    🔴
+                  </div>
+                  <div className="w-2 h-1 bg-black/20 rounded-full mt-0.5 blur-xs" />
+                </div>
+
+                {/* Has stock pins */}
+                <div className="absolute top-4 right-16 flex flex-col items-center">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-600 border-2 border-white shadow-md flex items-center justify-center text-white text-[10px]">
+                    🟢
                   </div>
                 </div>
-                <div className="absolute top-3 right-12 flex flex-col items-center">
-                  <div className="w-6 h-6 rounded-full bg-[#34C759] border-2 border-white shadow-sm flex items-center justify-center text-white text-[10px]">
-                    ✓
+
+                <div className="absolute bottom-6 left-28 flex flex-col items-center">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-600 border-2 border-white shadow-md flex items-center justify-center text-white text-[10px]">
+                    🟢
                   </div>
                 </div>
-                <div className="absolute bottom-5 left-24 flex flex-col items-center">
-                  <div className="w-6 h-6 rounded-full bg-[#34C759] border-2 border-white shadow-sm flex items-center justify-center text-white text-[10px]">
-                    ✓
+
+                <div className="absolute bottom-4 right-10 flex flex-col items-center">
+                  <div className="w-6 h-6 rounded-full bg-white border-2 border-gray-300 shadow-xs flex items-center justify-center text-[8px]">
+                    ⚪
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Floating Legend Capsule */}
-            <div className="absolute bottom-3 left-4 ios-glass border border-black/[0.08] rounded-full px-3 py-1 shadow-sm flex items-center gap-2 text-[11px] font-semibold text-gray-700">
+            {/* Floating Legend Pill */}
+            <div className="absolute bottom-3 left-4 bg-white/95 backdrop-blur-xs border border-gray-200/80 rounded-full px-3 py-1.5 shadow-md flex items-center gap-2 text-[11px] font-semibold text-gray-700">
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#FF3B30]" /> Best match
+                <span className="w-2 h-2 rounded-full bg-red-600" /> Best match
               </span>
               <span className="text-gray-300">·</span>
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#34C759]" /> Has stock
+                <span className="w-2 h-2 rounded-full bg-emerald-600" /> Has stock
+              </span>
+              <span className="text-gray-300">·</span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-gray-400" /> No stock
               </span>
             </div>
+
+            <button
+              type="button"
+              onClick={() => alert('Map showing verified blood centres near Rajahmundry.')}
+              className="absolute bottom-3 right-4 w-7 h-7 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white"
+            >
+              <Info className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          {/* Distance Segmented Filter Control */}
-          <div className="max-w-md mx-auto px-4 pt-3.5 space-y-4">
-            <div className="bg-[#767680]/12 p-0.5 rounded-[9px] flex items-center">
+          {/* Distance Filter Pills */}
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-4">
+            <div className="flex items-center gap-2.5">
               {[25, 50, 100].map((radius) => (
                 <button
                   key={radius}
                   type="button"
                   onClick={() => setSelectedRadius(radius)}
-                  className={`flex-1 py-1.5 text-[13px] font-semibold rounded-[7px] transition-all select-none ${
+                  className={`py-2 px-5 rounded-full text-xs font-bold transition-all ${
                     selectedRadius === radius
-                      ? 'bg-white text-gray-900 shadow-xs font-bold'
-                      : 'text-[#8E8E93] hover:text-gray-900'
+                      ? 'bg-red-600 text-white shadow-md shadow-red-500/20'
+                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   {radius} km
@@ -604,44 +612,44 @@ export default function NeedBloodFlowPage() {
             </div>
 
             {/* Section Header */}
-            <div className="px-1">
-              <h2 className="font-semibold text-[15px] text-gray-900">
-                {banks.length > 0 ? banks.length : 44} Registered Bank(s) · {bloodGroup}
+            <div>
+              <h2 className="font-extrabold text-[15px] text-gray-900">
+                Showing {banks.length > 0 ? banks.length : 44} Bank(s) · {bloodGroup} &amp; Compatible
               </h2>
             </div>
 
-            {/* Blood Bank Inset Cards */}
+            {/* Blood Bank Cards */}
             <div className="space-y-3 pb-8">
               {(banks.length > 0 ? banks : DEFAULT_HOSPITALS.slice(0, 4)).map((bank: any, idx: number) => {
                 const bName = bank.name;
                 const bUnits = bank.units ?? (idx === 0 ? 7 : idx === 1 ? 45 : idx === 2 ? 43 : 22);
-                const bType = idx % 2 === 0 ? 'Govt.' : 'Charitable';
+                const bType = idx % 2 === 0 ? 'Govt.' : 'Charitable/Vol';
                 const bDist = bank.distance_km ? `${bank.distance_km} km` : `${(idx * 0.9 + 6.6).toFixed(1)} km`;
 
                 return (
                   <div
                     key={bank.id || idx}
-                    className="p-4 rounded-[16px] bg-white border border-black/[0.06] shadow-2xs space-y-3"
+                    className="p-4 rounded-2xl bg-white border border-gray-100 shadow-xs space-y-3"
                   >
                     <div>
-                      <h3 className="font-semibold text-[15px] text-gray-900 leading-snug">
+                      <h3 className="font-extrabold text-[15px] text-gray-900 leading-snug">
                         {bName}
                       </h3>
-                      <p className="text-[12px] text-[#8E8E93] mt-0.5">
-                        East Godavari · {bDist}
+                      <p className="text-xs text-gray-500 mt-1">
+                        East Godavari, {bDist}
                       </p>
                     </div>
 
                     {/* Chips Row */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="px-2 py-0.5 rounded-full bg-[#767680]/10 text-gray-700 text-[11px] font-medium">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
                         {bType}
                       </span>
-                      <span className="px-2 py-0.5 rounded-full bg-[#34C759]/12 text-[#34C759] text-[11px] font-semibold border border-[#34C759]/20">
-                        {bUnits} units available
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                        {bUnits} units
                       </span>
-                      <span className="px-2 py-0.5 rounded-full bg-[#767680]/10 text-gray-700 text-[11px] font-medium">
-                        {bloodGroup} Compatible
+                      <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
+                        {bloodGroup}, {bloodGroup?.startsWith('O') ? 'O-' : 'A-'} +2
                       </span>
                     </div>
 
@@ -656,28 +664,28 @@ export default function NeedBloodFlowPage() {
                             alert('Bank details copied to clipboard!');
                           }
                         }}
-                        className="w-10 h-10 rounded-[10px] bg-[#767680]/10 hover:bg-[#767680]/15 flex items-center justify-center text-gray-700 shrink-0 ios-press"
+                        className="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 shrink-0"
                         aria-label="Share"
                       >
-                        <Share2 className="w-4 h-4" strokeWidth={2} />
+                        <Share2 className="w-4 h-4" />
                       </button>
 
                       <a
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(bName)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-[10px] bg-[#767680]/10 hover:bg-[#767680]/15 flex items-center justify-center text-gray-700 shrink-0 ios-press"
+                        className="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 shrink-0"
                         aria-label="Directions"
                       >
-                        <Navigation className="w-4 h-4" strokeWidth={2} />
+                        <Navigation className="w-4 h-4" />
                       </a>
 
                       <a
                         href={bank.phones?.[0] ? `tel:${bank.phones[0]}` : 'tel:108'}
-                        className="grow h-10 rounded-[10px] bg-[#34C759] text-white font-semibold text-[14px] flex items-center justify-center gap-1.5 shadow-xs ios-press select-none"
+                        className="grow h-11 rounded-xl border border-gray-200 bg-white font-bold text-sm text-gray-900 flex items-center justify-center gap-2 hover:bg-gray-50 active:scale-[0.99] transition-all"
                       >
-                        <Phone className="w-4 h-4" strokeWidth={2} />
-                        <span>Call Center</span>
+                        <Phone className="w-4 h-4" />
+                        <span>Call</span>
                       </a>
                     </div>
                   </div>
@@ -687,18 +695,18 @@ export default function NeedBloodFlowPage() {
           </div>
 
           {/* Sticky Bottom Bar: Search Donors Near You */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
-            <div className="max-w-md mx-auto space-y-1.5 text-center">
-              <p className="text-[12px] font-medium text-[#8E8E93]">
-                Need immediate response from active voluntary donors?
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 p-4">
+            <div className="max-w-md mx-auto space-y-2 text-center">
+              <p className="text-xs font-semibold text-gray-700">
+                Are the blood banks too far?
               </p>
               <button
                 type="button"
                 onClick={() => setStep(5)}
-                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm flex items-center justify-center gap-2 ios-press select-none"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all"
               >
-                <Radio className="w-4 h-4" strokeWidth={2} />
-                <span>Search Voluntary Donors</span>
+                <Radio className="w-5 h-5 animate-pulse" />
+                <span>Search Donors Near You</span>
               </button>
             </div>
           </div>
@@ -709,72 +717,78 @@ export default function NeedBloodFlowPage() {
       {step === 5 && (
         <>
           <WizardHeader
-            title="Donors Found"
+            title="Donors found"
             onBack={() => setStep(4)}
           />
-          <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
-            <div className="space-y-1">
-              <h1 className="text-[28px] sm:text-[32px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
-                {matchedDonorsCount} Donors in Radar
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-6">
+            <div>
+              <h1 className="text-3xl font-extrabold text-gray-950 tracking-tight leading-tight">
+                We found {matchedDonorsCount} donors
               </h1>
-              <p className="text-[15px] text-[#8E8E93]">
-                Active {bloodGroup} &amp; compatible donors located within 25 km of your hospital.
+              <p className="text-sm text-gray-600 mt-2">
+                Registered {bloodGroup} &amp; compatible donors within 100 km.
               </p>
             </div>
 
             {/* Overlapping Donor Avatars */}
-            <div className="flex items-center -space-x-2.5 pt-1">
-              <div className="w-11 h-11 rounded-full border-2 border-white shadow-xs bg-[#FF3B30]/15 flex items-center justify-center font-bold text-[#FF3B30] text-[13px]">
+            <div className="flex items-center -space-x-3 pt-2">
+              <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm bg-rose-100 flex items-center justify-center font-bold text-rose-700 text-sm">
                 SM
               </div>
-              <div className="w-11 h-11 rounded-full border-2 border-white shadow-xs bg-[#34C759]/15 flex items-center justify-center font-bold text-[#34C759] text-[13px]">
+              <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm bg-emerald-100 flex items-center justify-center font-bold text-emerald-700 text-sm">
                 TA
               </div>
-              <div className="w-11 h-11 rounded-full border-2 border-white shadow-xs bg-[#007AFF]/15 flex items-center justify-center font-bold text-[#007AFF] text-[13px]">
+              <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm bg-blue-100 flex items-center justify-center font-bold text-blue-700 text-sm">
                 MA
               </div>
-              <div className="w-11 h-11 rounded-full border-2 border-white shadow-xs bg-[#FF9500]/15 flex items-center justify-center font-bold text-[#FF9500] text-[13px]">
+              <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-sm bg-amber-100 flex items-center justify-center font-bold text-amber-700 text-sm">
                 DT
               </div>
-              <div className="w-11 h-11 rounded-full border-2 border-white bg-[#E5E5EA] flex items-center justify-center text-[12px] font-bold text-gray-700 shadow-xs">
+              <div className="w-12 h-12 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 shadow-sm">
                 +{matchedDonorsCount - 4}
               </div>
             </div>
 
             {/* You're Already Verified Card */}
-            <div className="p-4 rounded-[16px] bg-white border border-black/[0.06] flex items-center justify-between gap-4 shadow-2xs">
-              <div className="space-y-0.5">
-                <h3 className="font-semibold text-[16px] text-gray-950">
-                  Ready for Dispatch
+            <div className="p-5 rounded-3xl bg-[#F9FAFB] border border-gray-200/80 flex items-center justify-between gap-4 shadow-xs">
+              <div className="space-y-1">
+                <h3 className="font-extrabold text-base text-gray-950">
+                  You&apos;re already verified
                 </h3>
-                <p className="text-[13px] text-[#8E8E93]">
-                  Emergency alert queue primed
+                <p className="text-xs text-gray-500">
+                  Signed in as 9849497911
                 </p>
                 <button
                   type="button"
                   onClick={() => router.push('/login')}
-                  className="text-[13px] font-semibold text-[#007AFF] hover:underline pt-1 inline-block"
+                  className="text-xs font-bold text-red-600 hover:text-red-700 pt-1"
                 >
-                  Change Account
+                  Change Number
                 </button>
               </div>
 
-              {/* Apple Success Badge */}
-              <div className="w-12 h-12 rounded-full bg-[#34C759]/15 flex items-center justify-center text-[#34C759] shrink-0">
-                <CheckCircle2 className="w-7 h-7" strokeWidth={2.2} />
+              {/* Sparkly Checkmark Badge */}
+              <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+                <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <div className="w-11 h-11 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-md">
+                    <CheckCircle2 className="w-6 h-6 stroke-[2.5]" />
+                  </div>
+                </div>
+                <Sparkles className="w-3.5 h-3.5 text-emerald-500 absolute top-0 right-1" />
+                <Sparkles className="w-3 h-3 text-emerald-500 absolute bottom-1 left-0" />
               </div>
             </div>
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={() => setStep(6)}
-                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm ios-press transition-all select-none"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all"
               >
-                Continue
+                Continue now
               </button>
             </div>
           </div>
@@ -789,97 +803,83 @@ export default function NeedBloodFlowPage() {
             onBack={() => setStep(5)}
             progressPercent={75}
           />
-          <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
-            <div className="space-y-1">
-              <h1 className="text-[26px] sm:text-[30px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
-                Patient Information
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-5">
+            <div>
+              <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight">
+                A few details about the patient
               </h1>
-              <p className="text-[15px] text-[#8E8E93]">
-                Accurate details ensure immediate verification by volunteer donors.
+              <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                A detailed request is far more likely to invite a donor.
               </p>
             </div>
 
-            {/* iOS Grouped Form List */}
-            <div className="bg-white rounded-[16px] border border-black/[0.06] shadow-2xs divide-y divide-black/[0.06] overflow-hidden">
-              <div className="flex items-center px-4 py-3">
-                <label className="text-[15px] font-medium text-[#8E8E93] w-28 shrink-0">
-                  Full Name
+            <div className="space-y-4 pt-1">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Patient name
                 </label>
                 <input
                   type="text"
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
-                  placeholder="e.g. Siva Kumar"
-                  className="w-full bg-transparent text-[16px] font-semibold text-gray-900 focus:outline-hidden"
+                  placeholder="e.g. Sahib Singh"
+                  className="w-full py-3.5 px-4 bg-[#F9FAFB] border border-gray-200 rounded-2xl text-base font-medium text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500"
                 />
               </div>
 
-              <div className="flex items-center px-4 py-3">
-                <label className="text-[15px] font-medium text-[#8E8E93] w-28 shrink-0">
-                  Age (Years)
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Age
                 </label>
                 <input
                   type="number"
                   value={patientAge}
                   onChange={(e) => setPatientAge(e.target.value)}
-                  placeholder="e.g. 28"
-                  className="w-full bg-transparent text-[16px] font-semibold text-gray-900 focus:outline-hidden"
+                  placeholder="e.g. 34"
+                  className="w-full py-3.5 px-4 bg-[#F9FAFB] border border-gray-200 rounded-2xl text-base font-medium text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500"
                 />
               </div>
 
-              <div className="relative flex items-center px-4 py-3">
-                <label className="text-[15px] font-medium text-[#8E8E93] w-28 shrink-0">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
                   Gender
                 </label>
                 <select
                   value={patientGender}
                   onChange={(e) => setPatientGender(e.target.value)}
-                  className="w-full bg-transparent text-[16px] font-semibold text-gray-900 focus:outline-hidden appearance-none cursor-pointer pr-6"
+                  className="w-full py-3.5 px-4 bg-[#F9FAFB] border border-gray-200 rounded-2xl text-base font-medium text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500 cursor-pointer"
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                   <option value="Prefer not to say">Prefer not to say</option>
                 </select>
-                <ChevronDown className="w-4 h-4 text-[#8E8E93] absolute right-4 pointer-events-none" strokeWidth={2} />
               </div>
 
-              {/* Units Stepper Row */}
-              <div className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <span className="text-[15px] font-medium text-gray-900 block">Units Required</span>
-                  <span className="text-[12px] text-[#8E8E93]">Whole blood bags</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setUnitsRequired(Math.max(1, unitsRequired - 1))}
-                    className="w-8 h-8 rounded-full bg-[#767680]/12 flex items-center justify-center font-bold text-lg text-gray-800 ios-press"
-                  >
-                    –
-                  </button>
-                  <span className="font-bold text-[18px] text-gray-900 w-6 text-center">
-                    {unitsRequired}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setUnitsRequired(Math.min(10, unitsRequired + 1))}
-                    className="w-8 h-8 rounded-full bg-[#767680]/12 flex items-center justify-center font-bold text-lg text-gray-800 ios-press"
-                  >
-                    +
-                  </button>
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Number of units required
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={unitsRequired}
+                  onChange={(e) => setUnitsRequired(parseInt(e.target.value, 10) || 1)}
+                  placeholder="e.g. 2"
+                  className="w-full py-3.5 px-4 bg-[#F9FAFB] border border-gray-200 rounded-2xl text-base font-medium text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-red-500"
+                />
               </div>
             </div>
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={() => setStep(7)}
-                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm ios-press transition-all select-none"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all"
               >
                 Continue
               </button>
@@ -892,116 +892,103 @@ export default function NeedBloodFlowPage() {
       {step === 7 && (
         <>
           <WizardHeader
-            title="Dispatch Alert"
+            title="Send request"
             onBack={() => setStep(6)}
             progressPercent={90}
           />
-          <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
-            <div className="space-y-1">
-              <h1 className="text-[26px] sm:text-[30px] font-bold text-gray-950 tracking-[-0.02em] leading-tight">
-                Review Alert Message
-              </h1>
-              <p className="text-[15px] text-[#8E8E93]">
-                Sent immediately via WhatsApp interactive cards and Twilio voice calls.
-              </p>
-            </div>
+          <div className="max-w-md mx-auto px-5 pt-4 space-y-4">
+            <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight">
+              Message request to donor
+            </h1>
 
             {errorMessage && (
-              <div className="p-3.5 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[14px] text-[13px] text-[#FF3B30] font-medium">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700">
                 {errorMessage}
               </div>
             )}
 
-            {/* Generated Message Preview Bubble */}
-            <div className="p-4 rounded-[16px] bg-white border border-black/[0.06] shadow-2xs space-y-2 relative">
-              <div className="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider">
-                Automated Donor Message
+            {/* Generated Message Card */}
+            <div className="p-4 rounded-2xl bg-[#F9FAFB] border border-gray-200/80 space-y-2 relative">
+              <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                YOUR MESSAGE
               </div>
-              <p className="text-[14px] text-gray-800 leading-relaxed pr-8 font-normal">
-                Urgent blood requirement for <strong>{patientName}</strong>: <strong>{bloodGroup}</strong> ({unitsRequired} units) at <strong>{selectedHospital.name}</strong>. Compatible groups also contacted.
+              <p className="text-xs sm:text-sm text-gray-700 leading-relaxed pr-10">
+                I urgently need {bloodGroup} blood (compatible groups also accepted: A-, O+, O-) — {unitsRequired} units required. Patient is at {selectedHospital.name}. Please help if you can.
               </p>
               <button
                 type="button"
                 onClick={playAudioSummary}
-                className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-[#767680]/10 hover:bg-[#767680]/15 flex items-center justify-center text-gray-700 ios-press"
+                className="absolute bottom-3 right-3 w-8 h-8 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
                 aria-label="Play audio"
               >
-                <Volume2 className="w-4 h-4" strokeWidth={2} />
+                <Volume2 className="w-4 h-4" />
               </button>
             </div>
 
             {/* Custom note textarea with camera & mic icons */}
-            <div className="p-4 rounded-[16px] bg-white border border-black/[0.06] shadow-2xs space-y-2.5">
-              <label className="text-[12px] font-semibold text-[#8E8E93] uppercase tracking-wider block">
-                Additional Note
-              </label>
+            <div className="p-4 rounded-2xl bg-[#F9FAFB] border border-gray-200/80 space-y-3">
               <textarea
-                rows={2}
+                rows={3}
                 value={customNote}
                 onChange={(e) => setCustomNote(e.target.value)}
-                placeholder="Hospital ward number, emergency contact, or medical notes..."
-                className="w-full bg-transparent text-[15px] text-gray-900 focus:outline-hidden resize-none placeholder:text-[#8E8E93]"
+                placeholder="What happened?"
+                className="w-full bg-transparent text-sm font-medium text-gray-900 focus:outline-hidden resize-none"
               />
-              <div className="flex justify-end gap-2 pt-2 border-t border-black/[0.05]">
+              <div className="flex justify-end gap-2 pt-1 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => alert('Medical slip attach: speeds up donor confidence.')}
-                  className="w-8 h-8 rounded-full bg-[#767680]/10 hover:bg-[#767680]/15 flex items-center justify-center text-gray-700 ios-press"
+                  onClick={() => alert('Camera upload: You can attach patient requisition slip for faster donor trust.')}
+                  className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
                   aria-label="Upload photo"
                 >
-                  <Camera className="w-4 h-4" strokeWidth={2} />
+                  <Camera className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => alert('Record voice note for nearby donors.')}
-                  className="w-8 h-8 rounded-full bg-[#767680]/10 hover:bg-[#767680]/15 flex items-center justify-center text-gray-700 ios-press"
+                  onClick={() => alert('Microphone recording: Record a quick voice message for nearby donors.')}
+                  className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
                   aria-label="Record voice"
                 >
-                  <Mic className="w-4 h-4" strokeWidth={2} />
+                  <Mic className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Quick Reason Segmented Pills */}
-            <div className="space-y-1.5">
-              <label className="text-[12px] font-semibold text-[#8E8E93] uppercase tracking-wider px-1">
-                Emergency Category
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {['Accident', 'Disease', 'Critical', 'Surgery', 'Childbirth'].map((reason) => {
-                  const isSelected = selectedReason === reason;
-                  return (
-                    <button
-                      key={reason}
-                      type="button"
-                      onClick={() => handleReasonSelect(reason)}
-                      className={`py-1.5 px-3 rounded-full text-[13px] font-semibold transition-all select-none ios-press ${
-                        isSelected
-                          ? 'bg-[#FF3B30] text-white shadow-xs'
-                          : 'bg-white border border-black/[0.08] text-gray-700 hover:bg-black/[0.04]'
-                      }`}
-                    >
-                      {reason}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Quick Reason Chips */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {['Accident', 'Disease', 'Critical', 'Surgery', 'Childbirth'].map((reason) => {
+                const isSelected = selectedReason === reason;
+                return (
+                  <button
+                    key={reason}
+                    type="button"
+                    onClick={() => handleReasonSelect(reason)}
+                    className={`py-2 px-4 rounded-full text-xs font-bold transition-all ${
+                      isSelected
+                        ? 'bg-red-600 text-white shadow-md shadow-red-500/20'
+                        : 'bg-[#F9FAFB] border border-gray-200/80 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 ios-glass hairline-t p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={handleSendRequest}
                 disabled={submitting}
-                className="w-full h-12 rounded-[12px] font-semibold text-[17px] bg-[#FF3B30] text-white shadow-sm ios-press flex items-center justify-center gap-2 select-none"
+                className="w-full py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
               >
                 {submitting ? (
-                  <Loader2 className="w-5 h-5 animate-spin" strokeWidth={2.2} />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <span>Dispatch Alert to {matchedDonorsCount} Donors</span>
+                  <span>Send to {matchedDonorsCount} donors</span>
                 )}
               </button>
             </div>
@@ -1011,15 +998,15 @@ export default function NeedBloodFlowPage() {
 
       {/* Step 8: Sending Transition Screen */}
       {step === 8 && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-200">
-          <div className="w-20 h-20 rounded-full bg-[#FF3B30]/15 flex items-center justify-center text-[#FF3B30] mb-5 animate-pulse">
-            <Send className="w-8 h-8 fill-[#FF3B30] text-[#FF3B30]" />
+        <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
+          <div className="w-20 h-20 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 mb-6 shadow-sm animate-bounce">
+            <Send className="w-9 h-9 fill-rose-600 text-rose-600" />
           </div>
-          <h2 className="text-[26px] font-bold text-gray-950 tracking-tight">
-            Dispatching Waves...
+          <h2 className="text-2xl font-black text-gray-950">
+            Sending...
           </h2>
-          <p className="text-[15px] text-[#8E8E93] mt-1.5 font-normal">
-            Calling and notifying nearby donors via WhatsApp &amp; voice calls.
+          <p className="text-sm text-gray-500 mt-2 font-medium">
+            Notifying {matchedDonorsCount} donor(s) near you...
           </p>
         </div>
       )}
