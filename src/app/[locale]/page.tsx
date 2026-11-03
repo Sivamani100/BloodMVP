@@ -19,8 +19,11 @@ export default function HomePage() {
   const t = useTranslations('home');
 
   return (
-    <div className="w-full min-h-screen bg-[#F2F2F7] pb-28 font-sans">
-      <div className="max-w-lg mx-auto px-4 sm:px-6 pt-3 space-y-6 sm:space-y-7">
+    <div className="w-full min-h-screen bg-[#FAFAFC] pb-28 font-sans relative overflow-x-hidden">
+      {/* Ambient soft glow matching the iOS reference screenshot */}
+      <div className="pointer-events-none absolute -top-24 right-0 w-96 h-96 rounded-full bg-gradient-to-br from-rose-100/40 via-pink-100/30 to-transparent blur-3xl -z-10" />
+
+      <div className="max-w-lg mx-auto px-4 sm:px-6 pt-2 space-y-6 sm:space-y-7">
         {/* ==================================================================== */}
         {/* 1. PRIMARY HERO CARD: "I NEED BLOOD" (Sketched Main Big Focus Card)  */}
         {/* ==================================================================== */}

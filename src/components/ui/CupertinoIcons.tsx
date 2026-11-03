@@ -49,6 +49,25 @@ export function CupertinoGlobe({ className = 'w-6 h-6', ...props }: IconProps) {
   );
 }
 
+// SF Symbol: person (iOS Profile Avatar Outline)
+export function CupertinoPersonOutline({ className = 'w-5 h-5', ...props }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+    </svg>
+  );
+}
+
 // SF Symbol: person.crop.circle.fill (iOS Profile Avatar)
 export function CupertinoPersonCircle({ className = 'w-6 h-6', ...props }: IconProps) {
   return (
@@ -368,3 +387,4 @@ export function CupertinoLockFill({ className = 'w-6 h-6', ...props }: IconProps
     </svg>
   );
 }
+
