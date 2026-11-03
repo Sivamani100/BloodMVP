@@ -277,11 +277,7 @@ export default function NeedBloodFlowPage() {
           />
           <div className="max-w-md mx-auto px-5 pt-6 pb-28 space-y-6">
             {/* Center Aligned Headline & Subheading */}
-            <div className="text-center max-w-sm mx-auto space-y-2.5">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200/70 text-xs font-bold text-[#E11D48] uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
-                Emergency Blood Matching
-              </div>
+            <div className="text-center max-w-sm mx-auto space-y-2 pt-2">
               <h1 className="text-2xl sm:text-[28px] font-bold text-gray-900 tracking-tight leading-tight">
                 What is the blood group of the patient?
               </h1>
@@ -347,38 +343,6 @@ export default function NeedBloodFlowPage() {
               })}
             </div>
 
-            {/* Live Clinical Compatibility Card */}
-            {bloodGroup && (
-              <div className="rounded-2xl bg-gradient-to-r from-rose-50/90 via-rose-50/60 to-white border border-rose-200/80 p-4 flex items-center justify-between gap-3 shadow-xs animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#E11D48] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                    {bloodGroup}
-                  </div>
-                  <div className="space-y-0.5">
-                    <div className="text-sm font-bold text-gray-900">
-                      {bloodGroup === 'O-'
-                        ? 'Universal Red Cell Donor'
-                        : bloodGroup === 'AB+'
-                        ? 'Universal Blood Recipient'
-                        : `${bloodGroup} Patient Group`}
-                    </div>
-                    <div className="text-xs text-gray-600 font-normal leading-tight">
-                      {bloodGroup === 'O-' && 'Can accept red cells exclusively from O- donors.'}
-                      {bloodGroup === 'O+' && 'Compatible donors: O+ and O-'}
-                      {bloodGroup === 'A+' && 'Compatible donors: A+, A-, O+, O-'}
-                      {bloodGroup === 'A-' && 'Compatible donors: A- and O-'}
-                      {bloodGroup === 'B+' && 'Compatible donors: B+, B-, O+, O-'}
-                      {bloodGroup === 'B-' && 'Compatible donors: B- and O-'}
-                      {bloodGroup === 'AB+' && 'Can accept red cells from any blood group.'}
-                      {bloodGroup === 'AB-' && 'Compatible donors: AB-, A-, B-, O-'}
-                    </div>
-                  </div>
-                </div>
-                <div className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/70">
-                  <CupertinoCheckmark className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
-                </div>
-              </div>
-            )}
 
             {/* Helper Button */}
             <div className="text-center pt-1">
