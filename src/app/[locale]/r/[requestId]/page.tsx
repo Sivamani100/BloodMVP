@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
 import { WizardHeader } from '@/components/ui/WizardHeader';
@@ -27,7 +27,9 @@ import {
 
 export default function LiveRequestPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const requestId = params.requestId as string;
+  const token = searchParams.get('token');
   const router = useRouter();
 
   const [request, setRequest] = useState<any>(null);
@@ -57,7 +59,8 @@ export default function LiveRequestPage() {
   useEffect(() => {
     async function loadProgress() {
       try {
-        const res = await fetch(`/api/requests/${requestId}/progress`);
+        const progressUrl = `/api/requests/${requestId}/progress${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+        const res = await fetch(progressUrl);
         if (res.ok) {
           const data = await res.json();
           if (data.request) setRequest(data.request);
@@ -83,7 +86,7 @@ export default function LiveRequestPage() {
     return () => {
       clearInterval(interval);
     };
-  }, [requestId]);
+  }, [requestId, token]);
 
   async function handleCallDonor(contactId: string) {
     if (phoneMap[contactId]) {

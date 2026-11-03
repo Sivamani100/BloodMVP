@@ -55,3 +55,15 @@ export function verifySupabaseHookSignature(
   }
 }
 
+export function generateRequestAccessToken(requestId: string): string {
+  const secret = getEnv().DATA_ENCRYPTION_KEY || 'blood_access_secret_2026';
+  return crypto.createHmac('sha256', secret).update(requestId).digest('hex').slice(0, 16);
+}
+
+export function verifyRequestAccessToken(requestId: string, token?: string | null): boolean {
+  if (!token) return false;
+  const expected = generateRequestAccessToken(requestId);
+  return token === expected;
+}
+
+

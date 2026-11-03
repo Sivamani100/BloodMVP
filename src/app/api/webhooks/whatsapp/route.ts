@@ -13,6 +13,7 @@ import {
 import { StepKey } from '@/server/assistant/script';
 import { sendWhatsAppInteractive, sendWhatsAppText } from '@/server/providers/whatsapp';
 import { Locale } from '@/lib/constants';
+import { handleInboundRequesterWhatsApp } from '@/server/assistant/inbound-requester';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -103,6 +104,7 @@ export async function POST(req: NextRequest) {
 
       let buttonPayload: string | null = null;
       let textBody: string | null = null;
+      let locationPayload: any = null;
 
       if (msg.type === 'interactive' && msg.interactive?.button_reply) {
         buttonPayload = msg.interactive.button_reply.id;
@@ -110,6 +112,8 @@ export async function POST(req: NextRequest) {
         buttonPayload = msg.button.payload || msg.button.text;
       } else if (msg.type === 'text') {
         textBody = msg.text.body;
+      } else if (msg.type === 'location' && msg.location) {
+        locationPayload = msg.location;
       }
 
       // Check STOP / opt-out
@@ -244,6 +248,18 @@ export async function POST(req: NextRequest) {
               text: flowRes.text,
             });
           }
+        }
+      } else {
+        // Inbound Requester seeking emergency blood / blood banks (Zero-OTP)
+        try {
+          await handleInboundRequesterWhatsApp({
+            senderPhone,
+            text: textBody,
+            buttonPayload,
+            location: locationPayload,
+          });
+        } catch (inboundErr) {
+          console.error('[WhatsApp Webhook] Inbound requester error:', inboundErr);
         }
       }
     }
