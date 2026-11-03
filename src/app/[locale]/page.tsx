@@ -4,84 +4,82 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import {
-  Heart,
-  Calendar,
-  Zap,
-  ChevronRight,
-  ShieldCheck,
-  ArrowRight,
-  MapPin,
-  Users,
-  Building2,
-  Award,
-  Sparkles,
-} from 'lucide-react';
+  CupertinoBoltFill,
+  CupertinoChevronRight,
+  CupertinoHeartFill,
+  CupertinoCalendar,
+  CupertinoRosette,
+  CupertinoPerson2Fill,
+  CupertinoCrossCaseFill,
+  CupertinoSparkles,
+  CupertinoCheckmarkShieldFill,
+} from '@/components/ui/CupertinoIcons';
 
 export default function HomePage() {
   const t = useTranslations('home');
 
   return (
-    <div className="w-full min-h-screen bg-[#F2F2F7] pb-16 font-sans">
-      <div className="max-w-md mx-auto px-4 pt-3.5 space-y-4">
+    <div className="w-full min-h-screen bg-[#F2F2F7] pb-28 font-sans">
+      <div className="max-w-lg mx-auto px-4 sm:px-6 pt-3 space-y-6 sm:space-y-7">
         {/* ==================================================================== */}
-        {/* 1. PRIMARY HERO CARD: "I NEED BLOOD" (Sketched Main Emergency Focus) */}
+        {/* 1. PRIMARY HERO CARD: "I NEED BLOOD" (Sketched Main Big Focus Card)  */}
         {/* ==================================================================== */}
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#FF2D55] via-[#E11D48] to-[#9F1239] p-6 text-white shadow-[0_16px_36px_-6px_rgba(225,29,72,0.38)]">
+        <div className="relative overflow-hidden rounded-[38px] bg-gradient-to-br from-[#FF2D55] via-[#E11D48] to-[#9F1239] p-7 sm:p-8 text-white shadow-[0_24px_50px_-10px_rgba(225,29,72,0.48)] border border-white/20">
           {/* Ambient iOS liquid glass reflections */}
-          <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-white/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-20 w-64 h-64 rounded-full bg-black/15 blur-2xl pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-white/25 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-28 -left-24 w-80 h-80 rounded-full bg-black/25 blur-2xl pointer-events-none" />
 
           {/* Concentric radar rings background effect */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-64 h-64 pointer-events-none opacity-20">
-            <div className="w-full h-full rounded-full border border-white animate-ping" />
-            <div className="absolute inset-4 rounded-full border border-white/60" />
-            <div className="absolute inset-12 rounded-full border border-white/40" />
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-80 h-80 pointer-events-none opacity-25">
+            <div className="w-full h-full rounded-full border-2 border-white animate-ping" />
+            <div className="absolute inset-6 rounded-full border border-white/60" />
+            <div className="absolute inset-16 rounded-full border border-white/40" />
           </div>
 
-          <div className="relative z-10 space-y-4">
+          <div className="relative z-10 space-y-5">
             {/* Live Status Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 shadow-xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-xs">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-white shadow-xs" />
               </span>
-              <span className="text-[11px] font-black uppercase tracking-wider text-white">
+              <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-white">
                 Live 24/7 Dispatch · Within 5 km
               </span>
             </div>
 
             {/* Headline & Description */}
-            <div className="space-y-1.5">
-              <h1 className="text-3xl sm:text-[34px] font-black tracking-tight leading-[1.1] text-white">
+            <div className="space-y-2.5">
+              <h1 className="text-3xl sm:text-[40px] font-black tracking-tight leading-[1.06] text-white">
                 Need Blood Right Now?
               </h1>
-              <p className="text-sm font-medium text-white/90 leading-relaxed pr-2">
-                Connects directly with verified nearby donors and hospital blood centers in minutes.
+              <p className="text-base sm:text-lg font-medium text-white/95 leading-relaxed pr-2">
+                Connects directly with verified nearby donors &amp; hospital blood centers in minutes.
               </p>
             </div>
 
             {/* Micro Feature Assurance Badges */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <span className="px-2.5 py-1 rounded-xl bg-white/10 backdrop-blur-xs text-[11px] font-bold text-white border border-white/10">
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+              <span className="px-3.5 py-1.5 rounded-xl bg-white/15 backdrop-blur-xs text-xs sm:text-[13px] font-black text-white border border-white/20">
                 ⚡ 10-Min Fast Waves
               </span>
-              <span className="px-2.5 py-1 rounded-xl bg-white/10 backdrop-blur-xs text-[11px] font-bold text-white border border-white/10">
-                📍 GPS Match
+              <span className="px-3.5 py-1.5 rounded-xl bg-white/15 backdrop-blur-xs text-xs sm:text-[13px] font-black text-white border border-white/20">
+                📍 PostGIS GPS Match
               </span>
-              <span className="px-2.5 py-1 rounded-xl bg-white/10 backdrop-blur-xs text-[11px] font-bold text-white border border-white/10">
+              <span className="px-3.5 py-1.5 rounded-xl bg-white/15 backdrop-blur-xs text-xs sm:text-[13px] font-black text-white border border-white/20">
                 🛡️ 100% Free
               </span>
             </div>
 
-            {/* Primary Action Button (Tactile iOS Pill) */}
+            {/* Primary Action Button (Tactile Cupertino Pill Button) */}
             <div className="pt-2">
               <Link
                 href="/need-blood"
-                className="w-full py-4 px-6 rounded-2xl bg-white text-[#E11D48] font-black text-base shadow-lg shadow-black/15 flex items-center justify-center gap-2.5 hover:bg-rose-50 active:scale-[0.98] transition-all group"
+                className="w-full h-16 sm:h-17 rounded-[24px] bg-white text-[#E11D48] font-black text-lg sm:text-xl shadow-[0_12px_32px_rgba(0,0,0,0.22)] flex items-center justify-center gap-3.5 hover:bg-rose-50 active:scale-[0.98] transition-all group"
               >
-                <Zap className="w-5 h-5 fill-[#E11D48] text-[#E11D48] group-hover:scale-110 transition-transform" />
+                <CupertinoBoltFill className="w-7 h-7 text-[#E11D48] group-hover:scale-110 transition-transform" />
                 <span>Find Blood Donors Now</span>
-                <ArrowRight className="w-4 h-4 text-[#E11D48] group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
+                <CupertinoChevronRight className="w-6 h-6 text-[#E11D48] group-hover:translate-x-1.5 transition-transform" />
               </Link>
             </div>
 
@@ -89,10 +87,10 @@ export default function HomePage() {
             <div className="text-center pt-0.5">
               <Link
                 href="/need-blood"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-white/80 hover:text-white transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm sm:text-base font-bold text-white/90 hover:text-white transition-colors"
               >
                 <span>Or check live blood bank stock near you</span>
-                <ChevronRight className="w-3.5 h-3.5" strokeWidth={2.2} />
+                <CupertinoChevronRight className="w-4 h-4 text-white" />
               </Link>
             </div>
           </div>
@@ -101,30 +99,27 @@ export default function HomePage() {
         {/* ==================================================================== */}
         {/* 2. DUAL ACTION SQUARE BOXES: "DONATE >" & "CAMPS >" (No Matter/Text) */}
         {/* ==================================================================== */}
-        <div className="grid grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-2 gap-4 sm:gap-5">
           {/* Square Box 1: Donate */}
           <Link
             href="/become-donor"
-            className="group relative aspect-square rounded-[30px] p-5 bg-white border border-black/[0.04] shadow-xs hover:shadow-md active:scale-[0.96] transition-all flex flex-col justify-between overflow-hidden"
+            className="group relative aspect-square rounded-[36px] p-6 sm:p-7 bg-white border border-black/[0.05] shadow-[0_6px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] active:scale-[0.96] transition-all flex flex-col justify-between overflow-hidden cursor-pointer"
           >
-            {/* Background Icon Watermark */}
-            <Heart
-              className="absolute -right-4 -bottom-4 w-32 h-32 text-rose-500/[0.08] pointer-events-none group-hover:scale-110 group-hover:text-rose-500/[0.12] transition-all duration-300"
-              strokeWidth={1.5}
-            />
+            {/* Background Cupertino Watermark Icon: heart.fill */}
+            <CupertinoHeartFill className="absolute -right-6 -bottom-6 w-44 h-44 text-rose-500/[0.08] pointer-events-none group-hover:scale-110 group-hover:text-rose-500/[0.14] transition-all duration-300" />
 
-            {/* Top iOS App Squircle */}
-            <div className="w-12 h-12 rounded-[18px] bg-rose-50 border border-rose-100 flex items-center justify-center text-[#E11D48] shadow-2xs group-hover:scale-105 transition-transform">
-              <Heart className="w-6 h-6 fill-[#E11D48] text-[#E11D48]" strokeWidth={2} />
+            {/* Top Cupertino App Squircle */}
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-[24px] bg-rose-50 border border-rose-100/80 flex items-center justify-center text-[#E11D48] shadow-xs group-hover:scale-105 transition-transform">
+              <CupertinoHeartFill className="w-8 h-8 sm:w-9 sm:h-9 text-[#E11D48]" />
             </div>
 
             {/* Bottom: "Donate >" */}
-            <div className="relative z-10 flex items-center justify-between w-full pt-2">
-              <span className="text-xl font-black tracking-tight text-gray-950 group-hover:text-[#E11D48] transition-colors">
+            <div className="relative z-10 flex items-center justify-between w-full pt-4">
+              <span className="text-2xl sm:text-[28px] font-black tracking-tight text-gray-950 group-hover:text-[#E11D48] transition-colors">
                 Donate
               </span>
-              <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-[#E11D48] group-hover:bg-[#E11D48] group-hover:text-white group-hover:translate-x-1 transition-all">
-                <ChevronRight className="w-4 h-4" strokeWidth={2.8} />
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-rose-50 flex items-center justify-center text-[#E11D48] group-hover:bg-[#E11D48] group-hover:text-white group-hover:translate-x-1 transition-all shadow-2xs">
+                <CupertinoChevronRight className="w-5 h-5" />
               </div>
             </div>
           </Link>
@@ -132,26 +127,23 @@ export default function HomePage() {
           {/* Square Box 2: Camps */}
           <Link
             href="/how-it-works"
-            className="group relative aspect-square rounded-[30px] p-5 bg-white border border-black/[0.04] shadow-xs hover:shadow-md active:scale-[0.96] transition-all flex flex-col justify-between overflow-hidden"
+            className="group relative aspect-square rounded-[36px] p-6 sm:p-7 bg-white border border-black/[0.05] shadow-[0_6px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] active:scale-[0.96] transition-all flex flex-col justify-between overflow-hidden cursor-pointer"
           >
-            {/* Background Icon Watermark */}
-            <Calendar
-              className="absolute -right-4 -bottom-4 w-32 h-32 text-amber-500/[0.08] pointer-events-none group-hover:scale-110 group-hover:text-amber-500/[0.12] transition-all duration-300"
-              strokeWidth={1.5}
-            />
+            {/* Background Cupertino Watermark Icon: calendar */}
+            <CupertinoCalendar className="absolute -right-6 -bottom-6 w-44 h-44 text-amber-500/[0.08] pointer-events-none group-hover:scale-110 group-hover:text-amber-500/[0.14] transition-all duration-300" />
 
-            {/* Top iOS App Squircle */}
-            <div className="w-12 h-12 rounded-[18px] bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-2xs group-hover:scale-105 transition-transform">
-              <Calendar className="w-6 h-6 text-amber-600" strokeWidth={2.2} />
+            {/* Top Cupertino App Squircle */}
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-[24px] bg-amber-50 border border-amber-100/80 flex items-center justify-center text-amber-600 shadow-xs group-hover:scale-105 transition-transform">
+              <CupertinoCalendar className="w-8 h-8 sm:w-9 sm:h-9 text-amber-600" />
             </div>
 
             {/* Bottom: "Camps >" */}
-            <div className="relative z-10 flex items-center justify-between w-full pt-2">
-              <span className="text-xl font-black tracking-tight text-gray-950 group-hover:text-amber-600 transition-colors">
+            <div className="relative z-10 flex items-center justify-between w-full pt-4">
+              <span className="text-2xl sm:text-[28px] font-black tracking-tight text-gray-950 group-hover:text-amber-600 transition-colors">
                 Camps
               </span>
-              <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white group-hover:translate-x-1 transition-all">
-                <ChevronRight className="w-4 h-4" strokeWidth={2.8} />
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white group-hover:translate-x-1 transition-all shadow-2xs">
+                <CupertinoChevronRight className="w-5 h-5" />
               </div>
             </div>
           </Link>
@@ -162,71 +154,71 @@ export default function HomePage() {
         {/* ==================================================================== */}
         <Link
           href="/how-it-works"
-          className="group block relative overflow-hidden rounded-[26px] bg-gradient-to-r from-rose-50/90 via-amber-50/70 to-rose-50/90 p-4.5 border border-rose-200/60 shadow-xs hover:shadow-md active:scale-[0.99] transition-all"
+          className="group block relative overflow-hidden rounded-[32px] bg-gradient-to-r from-rose-50/95 via-amber-50/80 to-rose-50/95 p-5 sm:p-6 border border-rose-200/80 shadow-[0_6px_24px_rgba(0,0,0,0.03)] hover:shadow-md active:scale-[0.99] transition-all cursor-pointer"
         >
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-white shadow-xs border border-rose-100 flex items-center justify-center text-[#E11D48] shrink-0 group-hover:scale-105 transition-transform">
-              <Award className="w-5 h-5 text-[#E11D48]" strokeWidth={2.2} />
+          <div className="flex items-center gap-4 sm:gap-5">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[22px] bg-white shadow-xs border border-rose-100 flex items-center justify-center text-[#E11D48] shrink-0 group-hover:scale-105 transition-transform">
+              <CupertinoRosette className="w-7 h-7 sm:w-8 sm:h-8 text-[#E11D48]" />
             </div>
 
-            <div className="grow min-w-0 space-y-0.5">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-rose-700">
+            <div className="grow min-w-0 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#E11D48] animate-pulse" />
+                <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-rose-700">
                   National Voluntary Blood Donation Day
                 </span>
               </div>
-              <h3 className="font-extrabold text-sm text-gray-900 leading-tight truncate">
+              <h3 className="font-black text-base sm:text-lg text-gray-950 leading-tight truncate">
                 One Drop of Humanity. Give Blood, Save Lives.
               </h3>
-              <p className="text-[11px] text-gray-500 font-medium leading-tight">
-                Honoring voluntary lifesavers across India.
+              <p className="text-xs sm:text-sm text-gray-500 font-medium leading-tight">
+                Honoring voluntary lifesavers and medical heroes across India.
               </p>
             </div>
 
-            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-700 group-hover:translate-x-0.5 transition-all shrink-0" strokeWidth={2.5} />
+            <CupertinoChevronRight className="w-6 h-6 text-gray-400 group-hover:text-gray-800 group-hover:translate-x-1 transition-all shrink-0" />
           </div>
         </Link>
 
         {/* ==================================================================== */}
         {/* 4. METRICS / STATS ROW: "56 LAKH" / "4.7K" / "2.7L" (Sketched 3 Boxes)*/}
         {/* ==================================================================== */}
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {/* Stat 1: 56 L Registered Donors */}
-          <div className="p-4 rounded-[24px] bg-white border border-black/[0.04] shadow-xs text-center flex flex-col items-center justify-center space-y-1">
-            <div className="w-7 h-7 rounded-full bg-rose-50 text-[#E11D48] flex items-center justify-center">
-              <Users className="w-3.5 h-3.5" strokeWidth={2.4} />
+          <div className="p-4 sm:p-5 rounded-[28px] bg-white border border-black/[0.04] shadow-[0_4px_16px_rgba(0,0,0,0.03)] text-center flex flex-col items-center justify-center space-y-2">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rose-50 text-[#E11D48] flex items-center justify-center">
+              <CupertinoPerson2Fill className="w-5 h-5 text-[#E11D48]" />
             </div>
-            <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none pt-0.5">
+            <div className="text-2xl sm:text-[28px] font-black text-gray-950 tracking-tight leading-none pt-0.5">
               56 L+
             </div>
-            <div className="text-[10px] text-gray-500 font-semibold leading-tight">
+            <div className="text-xs sm:text-[13px] text-gray-500 font-extrabold leading-tight">
               Registered Donors
             </div>
           </div>
 
           {/* Stat 2: 4.7 K Blood Centers */}
-          <div className="p-4 rounded-[24px] bg-white border border-black/[0.04] shadow-xs text-center flex flex-col items-center justify-center space-y-1">
-            <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Building2 className="w-3.5 h-3.5" strokeWidth={2.4} />
+          <div className="p-4 sm:p-5 rounded-[28px] bg-white border border-black/[0.04] shadow-[0_4px_16px_rgba(0,0,0,0.03)] text-center flex flex-col items-center justify-center space-y-2">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CupertinoCrossCaseFill className="w-5 h-5 text-emerald-600" />
             </div>
-            <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none pt-0.5">
+            <div className="text-2xl sm:text-[28px] font-black text-gray-950 tracking-tight leading-none pt-0.5">
               4.7 K
             </div>
-            <div className="text-[10px] text-gray-500 font-semibold leading-tight">
+            <div className="text-xs sm:text-[13px] text-gray-500 font-extrabold leading-tight">
               Blood Centers
             </div>
           </div>
 
           {/* Stat 3: 2.7 L Camps Organised */}
-          <div className="p-4 rounded-[24px] bg-white border border-black/[0.04] shadow-xs text-center flex flex-col items-center justify-center space-y-1">
-            <div className="w-7 h-7 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5" strokeWidth={2.4} />
+          <div className="p-4 sm:p-5 rounded-[28px] bg-white border border-black/[0.04] shadow-[0_4px_16px_rgba(0,0,0,0.03)] text-center flex flex-col items-center justify-center space-y-2">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <CupertinoSparkles className="w-5 h-5 text-amber-600" />
             </div>
-            <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none pt-0.5">
+            <div className="text-2xl sm:text-[28px] font-black text-gray-950 tracking-tight leading-none pt-0.5">
               2.7 L
             </div>
-            <div className="text-[10px] text-gray-500 font-semibold leading-tight">
+            <div className="text-xs sm:text-[13px] text-gray-500 font-extrabold leading-tight">
               Camps Held
             </div>
           </div>
@@ -235,11 +227,11 @@ export default function HomePage() {
         {/* ==================================================================== */}
         {/* 5. TRUST & SAFETY ASSURANCE PILL (iOS Clean Health Footer)           */}
         {/* ==================================================================== */}
-        <div className="p-3.5 rounded-[22px] bg-white/80 backdrop-blur-xs border border-black/[0.04] text-center shadow-2xs">
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-600 font-medium">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" strokeWidth={2.4} />
+        <div className="p-5 rounded-[28px] bg-white border border-black/[0.05] text-center shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center justify-center gap-3 text-sm sm:text-base text-gray-700 font-medium">
+            <CupertinoCheckmarkShieldFill className="w-6 h-6 text-emerald-600 shrink-0" />
             <span>
-              <strong className="text-gray-900 font-bold">100% Voluntary & Free:</strong> Blood is a gift of life and is never sold.
+              <strong className="text-gray-950 font-bold">100% Voluntary &amp; Free:</strong> Blood is a sacred gift of life and is never sold.
             </span>
           </div>
         </div>

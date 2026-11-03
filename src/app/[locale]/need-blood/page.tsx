@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { WizardHeader } from '@/components/ui/WizardHeader';
 import { BloodGroup } from '@/lib/constants';
@@ -100,8 +99,6 @@ const DEFAULT_HOSPITALS: Hospital[] = [
 
 export default function NeedBloodFlowPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryBg = searchParams.get('bg') as BloodGroup | null;
 
   // Wizard Step:
   // 1: Blood Group
@@ -115,7 +112,7 @@ export default function NeedBloodFlowPage() {
   const [step, setStep] = useState<number>(1);
 
   // Form states
-  const [bloodGroup, setBloodGroup] = useState<BloodGroup | null>(queryBg || 'O+');
+  const [bloodGroup, setBloodGroup] = useState<BloodGroup | null>('O+');
   const [stateName, setStateName] = useState<string>('Andhra Pradesh');
   const [districtName, setDistrictName] = useState<string>('East Godavari');
   const [selectedHospital, setSelectedHospital] = useState<Hospital>(DEFAULT_HOSPITALS[0]);
