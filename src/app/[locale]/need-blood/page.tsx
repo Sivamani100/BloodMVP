@@ -279,32 +279,56 @@ export default function NeedBloodFlowPage() {
           />
           <div className="max-w-md mx-auto px-5 pt-6 pb-28 space-y-6">
             {/* Center Aligned Headline & Subheading */}
-            <div className="text-center max-w-sm mx-auto space-y-2 pt-2">
-              <h1 className="text-2xl sm:text-[28px] font-bold text-gray-900 tracking-tight leading-tight">
-                What is the blood group of the patient?
+            <div className="text-center max-w-sm mx-auto space-y-1.5 pt-2">
+              <h1 className="text-2xl sm:text-[26px] font-bold text-gray-900 tracking-tight">
+                Patient Blood Group
               </h1>
-              <p className="text-sm sm:text-base text-gray-500 font-normal leading-relaxed px-1">
-                We&apos;ll search banks and donors with a matching or compatible group.
+              <p className="text-sm text-gray-500 font-normal px-1">
+                Choose the blood type needed for the patient.
               </p>
             </div>
 
-            {/* Simple Clean Blood Group Buttons: 4x2 Grid (No dots, No badges, Solid Red) */}
-            <div className="grid grid-cols-4 gap-3 pt-2">
+            {/* Custom Blood Group Cards: 4x2 Grid (Droplet Emblem, Solid Red, Bold/Normal) */}
+            <div className="grid grid-cols-4 gap-2.5 sm:gap-3 pt-2">
               {(['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] as BloodGroup[]).map((group) => {
                 const isSelected = bloodGroup === group;
+                const isPositive = group.includes('+');
                 return (
                   <button
                     key={group}
                     type="button"
                     onClick={() => setBloodGroup(group)}
-                    className={`aspect-square rounded-2xl flex items-center justify-center transition-all cursor-pointer select-none ${
+                    className={`group relative h-[94px] sm:h-[98px] rounded-2xl flex flex-col items-center justify-between py-2 px-1.5 transition-all cursor-pointer select-none ${
                       isSelected
-                        ? 'bg-[#E11D48] text-white shadow-sm scale-[1.02]'
-                        : 'bg-white border-2 border-gray-100 hover:border-gray-200 text-gray-900 shadow-xs active:scale-95'
+                        ? 'bg-[#E11D48] text-white shadow-md shadow-rose-600/25 scale-[1.03] ring-2 ring-[#E11D48]/30'
+                        : 'bg-white border border-gray-200/90 hover:border-rose-200 text-gray-900 shadow-xs hover:shadow-sm active:scale-95'
                     }`}
                   >
-                    <span className="text-2xl sm:text-[28px] font-bold leading-none tracking-tight">
+                    {/* Top Droplet Emblem */}
+                    <div
+                      className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-rose-50 text-[#E11D48]'
+                      }`}
+                    >
+                      <CupertinoDropFill className="w-3.5 h-3.5" />
+                    </div>
+
+                    {/* Blood Group Letter */}
+                    <span
+                      className={`text-2xl sm:text-[26px] font-bold leading-none tracking-tight transition-colors ${
+                        isSelected ? 'text-white' : 'text-gray-900 group-hover:text-[#E11D48]'
+                      }`}
+                    >
                       {group}
+                    </span>
+
+                    {/* Rh Status */}
+                    <span
+                      className={`text-[9px] font-bold uppercase tracking-wider leading-none transition-colors ${
+                        isSelected ? 'text-white/80' : 'text-gray-400 group-hover:text-gray-600'
+                      }`}
+                    >
+                      {isPositive ? 'Rh Positive' : 'Rh Negative'}
                     </span>
                   </button>
                 );
@@ -316,7 +340,7 @@ export default function NeedBloodFlowPage() {
               <button
                 type="button"
                 onClick={() => setInfoSheetOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100/90 hover:bg-gray-200/90 text-xs font-bold text-gray-700 transition-all cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200/80 text-xs font-bold text-gray-700 transition-all cursor-pointer active:scale-95"
               >
                 <CupertinoInfoCircleFill className="w-4 h-4 text-gray-500" />
                 <span>Not sure which group?</span>
@@ -353,87 +377,82 @@ export default function NeedBloodFlowPage() {
               />
 
               {/* Bottom Sheet Card */}
-              <div className="relative w-full max-w-md bg-white rounded-t-[32px] p-6 pb-8 shadow-[0_-8px_32px_rgba(0,0,0,0.12)] z-50 animate-in slide-in-from-bottom duration-250">
+              <div className="relative w-full max-w-md bg-white rounded-t-[32px] p-5 pb-8 shadow-[0_-8px_32px_rgba(0,0,0,0.12)] z-50 animate-in slide-in-from-bottom duration-250">
                 {/* Drag Handle */}
-                <div className="w-12 h-1 rounded-full bg-gray-300 mx-auto mb-5" />
+                <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-4" />
 
                 {/* Sheet Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">
-                      Blood Group Guide
-                    </h2>
-                    <p className="text-sm text-gray-500 font-normal mt-0.5">
-                      Need help selecting the patient&apos;s blood type?
-                    </p>
-                  </div>
+                <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    Not Sure Which Blood Group?
+                  </h2>
                   <button
                     type="button"
                     onClick={() => setInfoSheetOpen(false)}
-                    className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:text-gray-950 active:scale-90 transition-all cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:text-gray-950 active:scale-90 transition-all cursor-pointer"
                     aria-label="Close Guide"
                   >
                     <CupertinoXmark className="w-4 h-4 text-gray-700" />
                   </button>
                 </div>
 
-                {/* Guide Cards */}
-                <div className="space-y-3 py-1">
-                  {/* Card 1: O- Universal Donor */}
+                {/* Guide Cards with Short, Clean Text */}
+                <div className="space-y-2.5 py-3">
+                  {/* Card 1: O- */}
                   <div
                     onClick={() => {
                       setBloodGroup('O-');
                       setInfoSheetOpen(false);
                     }}
-                    className="p-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-start gap-3.5 cursor-pointer hover:bg-rose-100/70 transition-all active:scale-[0.99]"
+                    className="p-3.5 rounded-2xl bg-rose-50/80 border border-rose-100 flex items-center gap-3 cursor-pointer hover:bg-rose-100/70 transition-all active:scale-[0.98]"
                   >
                     <div className="w-11 h-11 rounded-xl bg-[#E11D48] text-white flex items-center justify-center font-bold text-base shrink-0 shadow-xs">
                       O-
                     </div>
-                    <div className="grow">
-                      <div className="text-sm font-bold text-gray-900 flex items-center justify-between">
-                        <span>Select O- (Universal Donor)</span>
-                        <span className="text-[11px] font-bold uppercase bg-white px-2 py-0.5 rounded-full text-[#E11D48] border border-rose-200">
+                    <div className="grow min-w-0">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-bold text-sm text-gray-900 truncate">Universal Donor</span>
+                        <span className="px-2 py-0.5 rounded-full bg-white text-[#E11D48] text-[10px] font-bold border border-rose-200 uppercase whitespace-nowrap shrink-0">
                           Emergency
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 font-normal mt-1 leading-relaxed">
-                        O Negative red cells are universal and can be safely received by any patient when the blood group is unknown.
+                      <p className="text-xs text-gray-500 font-normal mt-0.5">
+                        Safe for all patients when group is unknown.
                       </p>
                     </div>
                   </div>
 
-                  {/* Card 2: O+ Most Common */}
+                  {/* Card 2: O+ */}
                   <div
                     onClick={() => {
                       setBloodGroup('O+');
                       setInfoSheetOpen(false);
                     }}
-                    className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-3.5 cursor-pointer hover:bg-gray-100 transition-all active:scale-[0.99]"
+                    className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-center gap-3 cursor-pointer hover:bg-gray-100 transition-all active:scale-[0.98]"
                   >
                     <div className="w-11 h-11 rounded-xl bg-gray-200 text-gray-800 flex items-center justify-center font-bold text-base shrink-0">
                       O+
                     </div>
-                    <div className="grow">
-                      <div className="text-sm font-bold text-gray-900 flex items-center justify-between">
-                        <span>Select O+ (Most Common in India)</span>
-                        <span className="text-[11px] font-bold uppercase bg-white px-2 py-0.5 rounded-full text-gray-600 border border-gray-200">
+                    <div className="grow min-w-0">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-bold text-sm text-gray-900 truncate">Most Common</span>
+                        <span className="px-2 py-0.5 rounded-full bg-white text-gray-600 text-[10px] font-bold border border-gray-200 uppercase whitespace-nowrap shrink-0">
                           40% Need
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 font-normal mt-1 leading-relaxed">
-                        Most common blood group. Hospitals perform a quick 2-minute bedside cross-match test before transfusion.
+                      <p className="text-xs text-gray-500 font-normal mt-0.5">
+                        Hospital cross-matches before transfusion.
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Got It Button */}
-                <div className="pt-4">
+                <div className="pt-2">
                   <button
                     type="button"
                     onClick={() => setInfoSheetOpen(false)}
-                    className="w-full h-13 rounded-2xl bg-[#E11D48] text-white font-bold text-base shadow-sm hover:bg-[#BE123C] active:scale-[0.98] transition-all cursor-pointer"
+                    className="w-full h-12 rounded-xl bg-[#E11D48] text-white font-bold text-sm shadow-sm hover:bg-[#BE123C] active:scale-[0.98] transition-all cursor-pointer"
                   >
                     Got It
                   </button>
