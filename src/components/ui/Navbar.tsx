@@ -15,7 +15,10 @@ import {
   FileText,
   Info,
   ChevronRight,
+  ChevronDown,
+  Globe,
   Lock,
+  Check,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -33,7 +36,6 @@ export function Navbar() {
   }
 
   // If inside certain dedicated mobile full-screen wizard subpaths, hide standard navbar
-  // so the wizard page's own native header is displayed!
   const isDedicatedStep =
     pathname.startsWith('/need-blood') ||
     pathname.startsWith('/r/') ||
@@ -43,70 +45,93 @@ export function Navbar() {
     return null;
   }
 
+  const currentLangLabel =
+    locale === 'te' ? 'తెలుగు' : locale === 'hi' ? 'हिन्दी' : 'English';
+
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Logo & Brand */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <RaktKhojLogo className="w-9 h-9" />
-            <span className="font-extrabold text-2xl tracking-tight text-gray-900">
-              RaktKhoj
-            </span>
-          </Link>
+      {/* Real iOS App Navigation Bar */}
+      <header className="sticky top-0 z-40 bg-[#F2F2F7]/95 backdrop-blur-xl border-b border-black/[0.05]">
+        <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between gap-2">
+          {/* Left: iOS Menu button */}
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="w-10 h-10 rounded-full bg-white border border-black/[0.06] shadow-2xs flex items-center justify-center text-gray-900 active:scale-90 transition-transform"
+            aria-label="Open Menu"
+          >
+            <Menu className="w-5 h-5 text-gray-900" strokeWidth={2.2} />
+          </button>
 
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-2.5">
-            {/* Language Pill Button */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="h-9 px-3.5 rounded-xl border border-gray-200 bg-white font-bold text-xs uppercase tracking-wider text-gray-800 hover:bg-gray-50 flex items-center gap-1 transition-colors"
-                aria-label="Select Language"
-              >
-                <span>{locale.toUpperCase()}</span>
-              </button>
-
-              {langMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-50"
-                    onClick={() => setLangMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 py-1 overflow-hidden animate-in fade-in zoom-in-95">
-                    {[
-                      { code: 'en', label: 'English' },
-                      { code: 'te', label: 'తెలుగు' },
-                      { code: 'hi', label: 'हिन्दी' },
-                    ].map((item) => (
-                      <button
-                        key={item.code}
-                        type="button"
-                        onClick={() => switchLocale(item.code as Locale)}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold flex items-center justify-between hover:bg-rose-50 hover:text-rose-600 transition-colors ${
-                          locale === item.code ? 'text-rose-600 bg-rose-50/50' : 'text-gray-700'
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        {locale === item.code && <span className="text-rose-600 font-black">✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Hamburger Menu Pill Button */}
+          {/* Center: iOS Language Selection Dropdown: "English ⌄" */}
+          <div className="relative">
             <button
               type="button"
-              onClick={() => setDrawerOpen(true)}
-              className="w-9 h-9 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
-              aria-label="Open Menu"
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              className="h-10 px-4 rounded-full bg-white border border-black/[0.06] shadow-2xs flex items-center gap-1.5 text-xs font-bold text-gray-900 active:scale-95 transition-all"
+              aria-label="Select Language"
             >
-              <Menu className="w-5 h-5" />
+              <Globe className="w-3.5 h-3.5 text-[#E11D48]" strokeWidth={2.2} />
+              <span>{currentLangLabel}</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${
+                  langMenuOpen ? 'rotate-180' : ''
+                }`}
+                strokeWidth={2.5}
+              />
             </button>
+
+            {/* iOS Action Sheet / Popover Dropdown */}
+            {langMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-50 bg-black/20 backdrop-blur-[1px]"
+                  onClick={() => setLangMenuOpen(false)}
+                />
+                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-white/95 backdrop-blur-2xl border border-black/[0.08] rounded-[24px] shadow-2xl z-50 p-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
+                    Select Language
+                  </div>
+                  {[
+                    { code: 'en', label: 'English', sub: 'Default' },
+                    { code: 'te', label: 'తెలుగు', sub: 'Telugu' },
+                    { code: 'hi', label: 'हिन्दी', sub: 'Hindi' },
+                  ].map((item) => (
+                    <button
+                      key={item.code}
+                      type="button"
+                      onClick={() => switchLocale(item.code as Locale)}
+                      className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors ${
+                        locale === item.code
+                          ? 'bg-rose-50 text-[#E11D48]'
+                          : 'text-gray-800 hover:bg-gray-100/70'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className="leading-tight">{item.label}</span>
+                        <span className="text-[10px] text-gray-400 font-normal">
+                          {item.sub}
+                        </span>
+                      </div>
+                      {locale === item.code && (
+                        <Check className="w-4 h-4 text-[#E11D48]" strokeWidth={2.8} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
+
+          {/* Right: iOS Profile button */}
+          <Link
+            href="/donor"
+            className="w-10 h-10 rounded-full bg-white border border-black/[0.06] shadow-2xs flex items-center justify-center text-gray-900 active:scale-90 transition-transform relative"
+            aria-label="User Profile"
+          >
+            <User className="w-5 h-5 text-gray-900" strokeWidth={2.2} />
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#E11D48] border-2 border-white" />
+          </Link>
         </div>
       </header>
 
@@ -130,7 +155,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="w-8 h-8 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800"
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 active:scale-95 transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -145,7 +170,7 @@ export function Navbar() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                    <Droplet className="w-4 h-4" />
+                    <Droplet className="w-4 h-4" strokeWidth={2.2} />
                   </div>
                   <span>Find Blood Now</span>
                 </div>
@@ -159,7 +184,7 @@ export function Navbar() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                    <Heart className="w-4 h-4" />
+                    <Heart className="w-4 h-4" strokeWidth={2.2} />
                   </div>
                   <span>Become a Donor</span>
                 </div>
@@ -173,7 +198,7 @@ export function Navbar() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center">
-                    <User className="w-4 h-4" />
+                    <User className="w-4 h-4" strokeWidth={2.2} />
                   </div>
                   <span>Donor Dashboard</span>
                 </div>
@@ -190,7 +215,7 @@ export function Navbar() {
                 className="flex items-center justify-between p-3 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Info className="w-4 h-4 text-gray-400" />
+                  <Info className="w-4 h-4 text-gray-400" strokeWidth={2.2} />
                   <span>How it works</span>
                 </div>
               </Link>
@@ -201,7 +226,7 @@ export function Navbar() {
                 className="flex items-center justify-between p-3 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Shield className="w-4 h-4 text-gray-400" />
+                  <Shield className="w-4 h-4 text-gray-400" strokeWidth={2.2} />
                   <span>Privacy Policy</span>
                 </div>
               </Link>
@@ -212,7 +237,7 @@ export function Navbar() {
                 className="flex items-center justify-between p-3 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <FileText className="w-4 h-4 text-gray-400" />
+                  <FileText className="w-4 h-4 text-gray-400" strokeWidth={2.2} />
                   <span>Terms of Service</span>
                 </div>
               </Link>
@@ -223,7 +248,7 @@ export function Navbar() {
                 className="flex items-center justify-between p-3 rounded-2xl text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Lock className="w-4 h-4 text-gray-400" />
+                  <Lock className="w-4 h-4 text-gray-400" strokeWidth={2.2} />
                   <span>Admin Panel</span>
                 </div>
               </Link>
