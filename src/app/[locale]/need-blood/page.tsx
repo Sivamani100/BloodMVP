@@ -5,6 +5,12 @@ import { useRouter } from '@/i18n/routing';
 import { WizardHeader } from '@/components/ui/WizardHeader';
 import { BloodGroup } from '@/lib/constants';
 import {
+  CupertinoChevronRight,
+  CupertinoInfoCircleFill,
+  CupertinoDropFill,
+  CupertinoCheckmark,
+} from '@/components/ui/CupertinoIcons';
+import {
   Search,
   Volume2,
   MapPin,
@@ -269,27 +275,32 @@ export default function NeedBloodFlowPage() {
             onBack={() => router.push('/')}
             progressPercent={20}
           />
-          <div className="max-w-md mx-auto px-5 pt-4 space-y-6">
-            <div>
-              <h1 className="text-2xl sm:text-[28px] font-extrabold text-gray-950 tracking-tight leading-tight">
+          <div className="max-w-md mx-auto px-5 pt-6 pb-28 space-y-6">
+            {/* Center Aligned Headline & Subheading */}
+            <div className="text-center max-w-sm mx-auto space-y-2.5">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200/70 text-xs font-black text-[#E11D48] uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
+                Emergency Blood Matching
+              </div>
+              <h1 className="text-2xl sm:text-[30px] font-black text-gray-950 tracking-tight leading-tight">
                 What is the blood group of the patient?
               </h1>
-              <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-500 font-medium leading-relaxed px-1">
                 We&apos;ll search banks and donors with a matching or compatible group.
               </p>
             </div>
 
-            {/* 2x4 Blood Groups Grid */}
-            <div className="grid grid-cols-4 gap-2.5 pt-2">
+            {/* Cool Apple Health Squircles: 4x2 Blood Groups Grid */}
+            <div className="grid grid-cols-4 gap-3 pt-1">
               {[
-                { group: 'O+', type: 'Common' },
-                { group: 'O-', type: 'Common' },
-                { group: 'A+', type: 'Common' },
-                { group: 'A-', type: 'Common' },
-                { group: 'B+', type: 'Common' },
-                { group: 'B-', type: 'Rare' },
-                { group: 'AB+', type: 'Rare' },
-                { group: 'AB-', type: 'Rare' },
+                { group: 'O+', type: 'Common', desc: '40% Need' },
+                { group: 'O-', type: 'Universal', desc: 'Universal' },
+                { group: 'A+', type: 'Common', desc: 'Frequent' },
+                { group: 'A-', type: 'Rare', desc: 'High Demand' },
+                { group: 'B+', type: 'Common', desc: 'Frequent' },
+                { group: 'B-', type: 'Rare', desc: 'High Demand' },
+                { group: 'AB+', type: 'Rare', desc: 'Universal Rx' },
+                { group: 'AB-', type: 'Rarest', desc: 'Critical Need' },
               ].map((item) => {
                 const isSelected = bloodGroup === item.group;
                 return (
@@ -297,16 +308,38 @@ export default function NeedBloodFlowPage() {
                     key={item.group}
                     type="button"
                     onClick={() => setBloodGroup(item.group as BloodGroup)}
-                    className={`py-4 px-2 rounded-2xl flex flex-col items-center justify-center transition-all ${
+                    className={`group relative min-h-[104px] p-2.5 rounded-[26px] flex flex-col items-center justify-between transition-all duration-200 cursor-pointer select-none ${
                       isSelected
-                        ? 'bg-rose-50/70 border-2 border-red-500 shadow-sm text-red-600 scale-[1.02]'
-                        : 'bg-[#F9FAFB] border border-gray-200/80 hover:bg-gray-100/70 text-gray-900'
+                        ? 'bg-gradient-to-br from-[#FF2D55] via-[#E11D48] to-[#9F1239] text-white shadow-[0_12px_28px_rgba(225,29,72,0.38)] scale-[1.04] ring-4 ring-rose-500/20'
+                        : 'bg-white border-2 border-gray-100 hover:border-rose-200 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md active:scale-95 text-gray-900'
                     }`}
                   >
-                    <span className="font-extrabold text-2xl tracking-tight leading-none mb-1">
+                    {/* Top status pip */}
+                    <div className="w-full flex justify-center">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${
+                          isSelected ? 'bg-white scale-125' : 'bg-gray-200 group-hover:bg-rose-300'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Blood Group Letter */}
+                    <span
+                      className={`text-3xl font-black tracking-tight leading-none my-1 transition-colors ${
+                        isSelected ? 'text-white' : 'text-gray-950 group-hover:text-[#E11D48]'
+                      }`}
+                    >
                       {item.group}
                     </span>
-                    <span className="text-[11px] text-gray-500 font-medium">
+
+                    {/* Bottom Pill Badge */}
+                    <span
+                      className={`text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full leading-tight transition-all ${
+                        isSelected
+                          ? 'bg-white/25 text-white'
+                          : 'bg-gray-100 text-gray-500 group-hover:bg-rose-50 group-hover:text-rose-600'
+                      }`}
+                    >
                       {item.type}
                     </span>
                   </button>
@@ -314,36 +347,72 @@ export default function NeedBloodFlowPage() {
               })}
             </div>
 
-            {/* Helper link */}
-            <div className="pt-2 text-center">
+            {/* Live Clinical Compatibility Card */}
+            {bloodGroup && (
+              <div className="rounded-[24px] bg-gradient-to-r from-rose-50/90 via-rose-50/60 to-white border border-rose-200/80 p-4 flex items-center justify-between gap-3 shadow-[0_4px_16px_rgba(225,29,72,0.04)] animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E11D48] text-white flex items-center justify-center font-black text-base shadow-xs shrink-0">
+                    {bloodGroup}
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-black text-gray-950">
+                      {bloodGroup === 'O-'
+                        ? 'Universal Red Cell Donor'
+                        : bloodGroup === 'AB+'
+                        ? 'Universal Blood Recipient'
+                        : `${bloodGroup} Patient Group`}
+                    </div>
+                    <div className="text-xs text-gray-600 font-medium leading-tight">
+                      {bloodGroup === 'O-' && 'Can accept red cells exclusively from O- donors.'}
+                      {bloodGroup === 'O+' && 'Compatible donors: O+ and O-'}
+                      {bloodGroup === 'A+' && 'Compatible donors: A+, A-, O+, O-'}
+                      {bloodGroup === 'A-' && 'Compatible donors: A- and O-'}
+                      {bloodGroup === 'B+' && 'Compatible donors: B+, B-, O+, O-'}
+                      {bloodGroup === 'B-' && 'Compatible donors: B- and O-'}
+                      {bloodGroup === 'AB+' && 'Can accept red cells from any blood group.'}
+                      {bloodGroup === 'AB-' && 'Compatible donors: AB-, A-, B-, O-'}
+                    </div>
+                  </div>
+                </div>
+                <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/70">
+                  <CupertinoCheckmark className="w-4 h-4 text-emerald-600 stroke-[3]" />
+                </div>
+              </div>
+            )}
+
+            {/* Helper Button */}
+            <div className="text-center pt-1">
               <button
                 type="button"
                 onClick={() => {
                   setBloodGroup('O+');
-                  alert('If unsure, hospital testing will determine the exact blood group. O- is the universal red cell donor.');
+                  alert(
+                    'Hospital and blood bank teams will verify and cross-match before transfusion. If completely unknown, O- is the universal donor group.'
+                  );
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100/80 hover:bg-gray-200/80 text-xs font-bold text-gray-700 transition-all cursor-pointer active:scale-95"
               >
-                <Info className="w-4 h-4 text-gray-500" />
+                <CupertinoInfoCircleFill className="w-4 h-4 text-gray-500" />
                 <span>Not sure which group?</span>
               </button>
             </div>
           </div>
 
           {/* Sticky Bottom Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-black/[0.06] p-4">
             <div className="max-w-md mx-auto">
               <button
                 type="button"
                 onClick={() => setStep(2)}
                 disabled={!bloodGroup}
-                className={`w-full py-4 rounded-2xl font-bold text-base transition-all ${
+                className={`w-full h-15 sm:h-16 rounded-[24px] font-black text-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
                   bloodGroup
-                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 active:scale-[0.99]'
-                    : 'bg-red-200 text-white cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-[#FF2D55] via-[#E11D48] to-[#9F1239] text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] hover:opacity-95 active:scale-[0.98]'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                Continue
+                <span>Continue</span>
+                <CupertinoChevronRight className="w-5 h-5 text-white stroke-[3.2]" />
               </button>
             </div>
           </div>

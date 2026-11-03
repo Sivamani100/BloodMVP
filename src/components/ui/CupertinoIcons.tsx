@@ -114,6 +114,24 @@ export function CupertinoChevronDown({ className = 'w-4 h-4', ...props }: IconPr
   );
 }
 
+// SF Symbol: chevron.left
+export function CupertinoChevronLeft({ className = 'w-5 h-5', ...props }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
 // SF Symbol: chevron.right
 export function CupertinoChevronRight({ className = 'w-4 h-4', ...props }: IconProps) {
   return (
