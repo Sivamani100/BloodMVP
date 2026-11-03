@@ -278,19 +278,19 @@ export default function NeedBloodFlowPage() {
           <div className="max-w-md mx-auto px-5 pt-6 pb-28 space-y-6">
             {/* Center Aligned Headline & Subheading */}
             <div className="text-center max-w-sm mx-auto space-y-2.5">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200/70 text-xs font-black text-[#E11D48] uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200/70 text-xs font-bold text-[#E11D48] uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
                 Emergency Blood Matching
               </div>
-              <h1 className="text-2xl sm:text-[30px] font-black text-gray-950 tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-gray-900 tracking-tight leading-tight">
                 What is the blood group of the patient?
               </h1>
-              <p className="text-sm sm:text-base text-gray-500 font-medium leading-relaxed px-1">
+              <p className="text-sm sm:text-base text-gray-500 font-normal leading-relaxed px-1">
                 We&apos;ll search banks and donors with a matching or compatible group.
               </p>
             </div>
 
-            {/* Cool Apple Health Squircles: 4x2 Blood Groups Grid */}
+            {/* Apple Health Squircles: 4x2 Blood Groups Grid */}
             <div className="grid grid-cols-4 gap-3 pt-1">
               {[
                 { group: 'O+', type: 'Common', desc: '40% Need' },
@@ -308,10 +308,10 @@ export default function NeedBloodFlowPage() {
                     key={item.group}
                     type="button"
                     onClick={() => setBloodGroup(item.group as BloodGroup)}
-                    className={`group relative min-h-[104px] p-2.5 rounded-[26px] flex flex-col items-center justify-between transition-all duration-200 cursor-pointer select-none ${
+                    className={`group relative min-h-[96px] p-2.5 rounded-2xl flex flex-col items-center justify-between transition-all duration-200 cursor-pointer select-none ${
                       isSelected
-                        ? 'bg-gradient-to-br from-[#FF2D55] via-[#E11D48] to-[#9F1239] text-white shadow-[0_12px_28px_rgba(225,29,72,0.38)] scale-[1.04] ring-4 ring-rose-500/20'
-                        : 'bg-white border-2 border-gray-100 hover:border-rose-200 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md active:scale-95 text-gray-900'
+                        ? 'bg-gradient-to-br from-[#FF2D55] via-[#E11D48] to-[#9F1239] text-white shadow-md scale-[1.03] ring-4 ring-rose-500/20'
+                        : 'bg-white border-2 border-gray-100 hover:border-rose-200 shadow-xs hover:shadow-sm active:scale-95 text-gray-900'
                     }`}
                   >
                     {/* Top status pip */}
@@ -325,8 +325,8 @@ export default function NeedBloodFlowPage() {
 
                     {/* Blood Group Letter */}
                     <span
-                      className={`text-3xl font-black tracking-tight leading-none my-1 transition-colors ${
-                        isSelected ? 'text-white' : 'text-gray-950 group-hover:text-[#E11D48]'
+                      className={`text-2xl sm:text-3xl font-bold tracking-tight leading-none my-1 transition-colors ${
+                        isSelected ? 'text-white' : 'text-gray-900 group-hover:text-[#E11D48]'
                       }`}
                     >
                       {item.group}
@@ -334,10 +334,10 @@ export default function NeedBloodFlowPage() {
 
                     {/* Bottom Pill Badge */}
                     <span
-                      className={`text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full leading-tight transition-all ${
+                      className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full leading-tight transition-all ${
                         isSelected
                           ? 'bg-white/25 text-white'
-                          : 'bg-gray-100 text-gray-500 group-hover:bg-rose-50 group-hover:text-rose-600'
+                          : 'bg-gray-100 text-gray-500 font-normal group-hover:bg-rose-50 group-hover:text-rose-600'
                       }`}
                     >
                       {item.type}
@@ -349,20 +349,20 @@ export default function NeedBloodFlowPage() {
 
             {/* Live Clinical Compatibility Card */}
             {bloodGroup && (
-              <div className="rounded-[24px] bg-gradient-to-r from-rose-50/90 via-rose-50/60 to-white border border-rose-200/80 p-4 flex items-center justify-between gap-3 shadow-[0_4px_16px_rgba(225,29,72,0.04)] animate-in fade-in zoom-in-95 duration-200">
+              <div className="rounded-2xl bg-gradient-to-r from-rose-50/90 via-rose-50/60 to-white border border-rose-200/80 p-4 flex items-center justify-between gap-3 shadow-xs animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[#E11D48] text-white flex items-center justify-center font-black text-base shadow-xs shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#E11D48] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                     {bloodGroup}
                   </div>
                   <div className="space-y-0.5">
-                    <div className="text-sm font-black text-gray-950">
+                    <div className="text-sm font-bold text-gray-900">
                       {bloodGroup === 'O-'
                         ? 'Universal Red Cell Donor'
                         : bloodGroup === 'AB+'
                         ? 'Universal Blood Recipient'
                         : `${bloodGroup} Patient Group`}
                     </div>
-                    <div className="text-xs text-gray-600 font-medium leading-tight">
+                    <div className="text-xs text-gray-600 font-normal leading-tight">
                       {bloodGroup === 'O-' && 'Can accept red cells exclusively from O- donors.'}
                       {bloodGroup === 'O+' && 'Compatible donors: O+ and O-'}
                       {bloodGroup === 'A+' && 'Compatible donors: A+, A-, O+, O-'}
@@ -374,8 +374,8 @@ export default function NeedBloodFlowPage() {
                     </div>
                   </div>
                 </div>
-                <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/70">
-                  <CupertinoCheckmark className="w-4 h-4 text-emerald-600 stroke-[3]" />
+                <div className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/70">
+                  <CupertinoCheckmark className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
                 </div>
               </div>
             )}
@@ -405,9 +405,9 @@ export default function NeedBloodFlowPage() {
                 type="button"
                 onClick={() => setStep(2)}
                 disabled={!bloodGroup}
-                className={`w-full h-15 sm:h-16 rounded-[24px] font-black text-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
+                className={`w-full h-14 rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   bloodGroup
-                    ? 'bg-gradient-to-r from-[#FF2D55] via-[#E11D48] to-[#9F1239] text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] hover:opacity-95 active:scale-[0.98]'
+                    ? 'bg-gradient-to-r from-[#FF2D55] via-[#E11D48] to-[#9F1239] text-white shadow-md hover:opacity-95 active:scale-[0.98]'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >

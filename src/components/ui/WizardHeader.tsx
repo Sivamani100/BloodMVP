@@ -51,7 +51,7 @@ export function WizardHeader({
         </button>
 
         {/* Center Title (Step indicator) */}
-        <h1 className="font-black text-base sm:text-[17px] text-gray-950 tracking-tight text-center select-none truncate px-2">
+        <h1 className="font-bold text-base text-gray-900 tracking-tight text-center select-none truncate px-2">
           {title}
         </h1>
 

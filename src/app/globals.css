@@ -7,11 +7,38 @@
   --background-rgb: 255, 255, 255;
 }
 
+/* Enforce Arial font exclusively across the entire application */
+* {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: Arial, Helvetica, sans-serif !important;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Enforce only bold and normal font weights — no intermediate weights */
+.font-semibold,
+.font-medium,
+.font-light,
+.font-thin {
+  font-weight: 400 !important;
+}
+
+.font-bold,
+.font-extrabold,
+.font-black,
+b,
+strong,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700 !important;
 }
 
 /* Accessible focus ring */
@@ -19,4 +46,3 @@ body {
   outline: 2px solid #dc2626;
   outline-offset: 2px;
 }
-

@@ -72,7 +72,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="h-12 px-4.5 rounded-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-black/[0.03] flex items-center gap-2 text-[15px] font-semibold text-gray-800 hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
+              className="h-12 px-4.5 rounded-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-black/[0.03] flex items-center gap-2 text-[15px] font-bold text-gray-800 hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
               aria-label="Select App Language"
             >
               <CupertinoGlobe className="w-5 h-5 text-[#FF2D55] shrink-0" />
@@ -92,7 +92,7 @@ export function Navbar() {
                   onClick={() => setLangMenuOpen(false)}
                 />
                 <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white/95 backdrop-blur-2xl border border-black/[0.06] rounded-[24px] shadow-[0_16px_40px_rgba(0,0,0,0.14)] z-50 p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
                     Language / భాష / भाषा
                   </div>
                   {[
@@ -106,15 +106,15 @@ export function Navbar() {
                         key={item.code}
                         type="button"
                         onClick={() => switchLocale(item.code as Locale)}
-                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-[15px] font-semibold flex items-center justify-between transition-all my-0.5 cursor-pointer ${
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-[15px] font-bold flex items-center justify-between transition-all my-0.5 cursor-pointer ${
                           isSelected
-                            ? 'text-[#FF2D55] bg-rose-50/80 font-black'
-                            : 'text-gray-800 hover:bg-gray-100/70'
+                            ? 'text-[#FF2D55] bg-rose-50/80 font-bold'
+                            : 'text-gray-800 hover:bg-gray-100/70 font-normal'
                         }`}
                       >
                         <div className="flex flex-col">
                           <span>{item.label}</span>
-                          <span className="text-[11px] text-gray-400 font-medium">
+                          <span className="text-[11px] text-gray-400 font-normal">
                             {item.sub}
                           </span>
                         </div>
@@ -156,7 +156,7 @@ export function Navbar() {
             <div className="flex items-center justify-between pb-5 border-b border-gray-100">
               <div className="flex items-center gap-2.5">
                 <RaktKhojLogo className="w-8 h-8" />
-                <span className="font-black text-2xl text-gray-950 tracking-tight">
+                <span className="font-bold text-2xl text-gray-950 tracking-tight">
                   RaktKhoj
                 </span>
               </div>
@@ -221,7 +221,7 @@ export function Navbar() {
               <Link
                 href="/how-it-works"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center justify-between p-3 rounded-2xl text-base font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-2xl text-base font-normal text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-9 h-9 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center">
@@ -235,7 +235,7 @@ export function Navbar() {
               <Link
                 href="/privacy"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center justify-between p-3 rounded-2xl text-base font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-2xl text-base font-normal text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-9 h-9 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center">
@@ -249,7 +249,7 @@ export function Navbar() {
               <Link
                 href="/terms"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center justify-between p-3 rounded-2xl text-base font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-2xl text-base font-normal text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-9 h-9 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center">
@@ -263,7 +263,7 @@ export function Navbar() {
               <Link
                 href="/admin"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center justify-between p-3 rounded-2xl text-base font-semibold text-gray-500 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-2xl text-base font-normal text-gray-500 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center">
@@ -277,7 +277,7 @@ export function Navbar() {
 
             {/* Drawer Footer */}
             <div className="pt-4 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400 font-medium">
+              <p className="text-xs text-gray-400 font-normal">
                 RaktKhoj · Instant Blood Matching System
               </p>
             </div>

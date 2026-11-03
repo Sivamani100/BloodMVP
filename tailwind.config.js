@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Arial', 'Helvetica', 'sans-serif'],
+      },
       colors: {
         blood: {
           50: '#fef2f2',
@@ -26,4 +29,3 @@ module.exports = {
   },
   plugins: [],
 };
-
