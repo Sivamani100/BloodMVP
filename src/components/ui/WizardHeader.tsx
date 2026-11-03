@@ -39,11 +39,14 @@ export function WizardHeader({
 
   // Parse step number from title (e.g. "Step 1 of 5" -> 1, total 5)
   let currentStep = 1;
+  let totalSteps = 5;
   const match = title.match(/Step\s+(\d+)\s+of\s+(\d+)/i);
   if (match) {
     currentStep = parseInt(match[1], 10);
+    totalSteps = parseInt(match[2], 10) || 5;
   } else if (progressPercent !== undefined) {
     currentStep = Math.max(1, Math.round(progressPercent / 20));
+    totalSteps = 5;
   }
 
   return (
@@ -89,14 +92,14 @@ export function WizardHeader({
         )}
       </div>
 
-      {/* Cool Segmented Step Progress Pills - Solid Red (No linear gradient) */}
-      <div className="max-w-md mx-auto px-4 pb-2.5 flex items-center gap-1.5">
-        {[1, 2, 3, 4, 5].map((s) => {
+      {/* Prominent Segmented Step Progress Bar - Solid Red (h-2 / 8px rounded pills) */}
+      <div className="max-w-md mx-auto px-5 pb-3.5 pt-1 flex items-center gap-2">
+        {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => {
           const isActive = s <= currentStep;
           return (
             <div
               key={s}
-              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+              className={`h-2 flex-1 rounded-full transition-all duration-300 ${
                 isActive ? 'bg-[#E11D48]' : 'bg-gray-200'
               }`}
             />
