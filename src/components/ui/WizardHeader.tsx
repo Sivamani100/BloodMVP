@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from '@/i18n/routing';
-import { CupertinoChevronLeft, CupertinoXmark } from './CupertinoIcons';
+import { CupertinoXmark } from './CupertinoIcons';
 
 interface WizardHeaderProps {
   title: string;
@@ -37,17 +37,36 @@ export function WizardHeader({
     }
   }
 
+  // Parse step number from title (e.g. "Step 1 of 5" -> 1, total 5)
+  let currentStep = 1;
+  const match = title.match(/Step\s+(\d+)\s+of\s+(\d+)/i);
+  if (match) {
+    currentStep = parseInt(match[1], 10);
+  } else if (progressPercent !== undefined) {
+    currentStep = Math.max(1, Math.round(progressPercent / 20));
+  }
+
   return (
     <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-black/[0.04] transition-all">
-      <div className="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
         {/* Back Button: Clean iOS '<' Chevron */}
         <button
           type="button"
           onClick={handleBack}
-          className="w-10 h-10 rounded-full bg-white border border-black/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center text-gray-800 hover:bg-gray-50 active:scale-90 transition-all cursor-pointer"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-900 hover:bg-gray-100 active:scale-90 transition-all cursor-pointer -ml-1"
           aria-label="Go Back"
         >
-          <CupertinoChevronLeft className="w-5 h-5 text-gray-800 -translate-x-0.5" />
+          <svg
+            className="w-6 h-6 text-gray-900"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
 
         {/* Center Title (Step indicator) */}
@@ -55,30 +74,35 @@ export function WizardHeader({
           {title}
         </h1>
 
-        {/* Right Action: Simple Clean Close Button */}
+        {/* Right Action: Clean Close Button */}
         {showClose ? (
           <button
             type="button"
             onClick={handleClose}
-            className="w-10 h-10 rounded-full bg-white border border-black/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center text-gray-800 hover:bg-gray-50 active:scale-90 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-gray-900 hover:bg-gray-100 active:scale-90 transition-all cursor-pointer -mr-1"
             aria-label="Close"
           >
-            <CupertinoXmark className="w-4 h-4 text-gray-700" />
+            <CupertinoXmark className="w-5 h-5 text-gray-900" />
           </button>
         ) : (
-          <div className="w-10 h-10" aria-hidden="true" />
+          <div className="w-10 h-10 -mr-1" aria-hidden="true" />
         )}
       </div>
 
-      {/* Smooth Apple Health Progress Track */}
-      {progressPercent !== undefined && (
-        <div className="w-full bg-gray-100/80 h-[3px] relative overflow-hidden">
-          <div
-            className="bg-gradient-to-r from-[#FF2D55] via-[#E11D48] to-[#BE123C] h-full transition-all duration-300 rounded-r-full"
-            style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
-          />
-        </div>
-      )}
+      {/* Cool Segmented Step Progress Pills - Solid Red (No linear gradient) */}
+      <div className="max-w-md mx-auto px-4 pb-2.5 flex items-center gap-1.5">
+        {[1, 2, 3, 4, 5].map((s) => {
+          const isActive = s <= currentStep;
+          return (
+            <div
+              key={s}
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                isActive ? 'bg-[#E11D48]' : 'bg-gray-200'
+              }`}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
