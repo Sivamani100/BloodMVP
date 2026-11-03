@@ -281,7 +281,7 @@ export default function NeedBloodFlowPage() {
             {/* Center Aligned Headline & Subheading */}
             <div className="text-center max-w-sm mx-auto space-y-1.5 pt-2">
               <h1 className="text-2xl sm:text-[26px] font-bold text-gray-900 tracking-tight">
-                Patient Blood Group
+                Blood Group of patient ?
               </h1>
               <p className="text-sm text-gray-500 font-normal px-1">
                 Choose the blood type needed for the patient.

@@ -29,7 +29,7 @@ test.describe('Blood MVP - Comprehensive Mobile-First UI & E2E Smoke Tests', () 
 
     // Step 1: Blood Group
     await expect(page.getByText('Step 1 of 5')).toBeVisible();
-    await expect(page.getByRole('heading', { name: /What is the blood group of the patient\?/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /(Blood Group of patient \?|What is the blood group of the patient\?)/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /O\+/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /A\+/ })).toBeVisible();
 
